@@ -21,30 +21,40 @@ namespace EFBot.Shared
         public RecognitionEngine()
         {
             tesseractEngine = new Tesseract();
-            tesseractEngine.Init(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), "eng", OcrEngineMode.Default);
+            tesseractEngine.Init(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), "eng", OcrEngineMode.TesseractOnly);
             tesseractEngine.SetVariable("tessedit_char_whitelist", "1234567890:-");
         }
-
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public RecognitionResult Recognize(Image<Bgr, byte> source)
         {
-            source = source.Convert<Gray, byte>().Convert<Bgr, byte>();
+            var img = source.Convert<Gray, byte>();
 
-            var mask = source.SmoothGaussian(3, 3, 9, 9);
-            source = source.AddWeighted(mask, 2, -1, 0.5);
+            img = img.Resize(2, Inter.Cubic);
+
+            img = img.Not();
+
+            img = img.ThresholdBinary(new Gray(0xA5), new Gray(0xFF));
             
+            var mask = img.SmoothGaussian(3, 3, 9, 9);
+            img = img.AddWeighted(mask, 2, -1, 0.5);
+
             tesseractEngine.PageSegMode = PageSegMode.SparseTextOsd;
-            tesseractEngine.Recognize(source);
+            tesseractEngine.Recognize(img);
             var text = tesseractEngine.GetText();
-            foreach (var recognizedCharacter in tesseractEngine.GetCharacters())
+
+            source = img.Convert<Bgr, byte>();
+
+            var charactes = tesseractEngine.GetCharacters();
+            foreach (var recognizedCharacter in charactes)
             {
                 source.Draw(recognizedCharacter.Region, new Bgr(Color.Red), 1, LineType.AntiAlias);
             }
             
+            
             return new RecognitionResult()
             {
-                Text = CleanupText(text),
+                Text = CleanupText(text) + "\n" + string.Join("\n", charactes.Select(x => new { x.Text, x.Cost })),
                 Image = source,
             };
         }

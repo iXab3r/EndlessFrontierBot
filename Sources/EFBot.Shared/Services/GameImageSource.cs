@@ -39,7 +39,7 @@ namespace EFBot.Shared.Services
                 .AddTo(Anchors);
             
             Observable
-                .Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(10)).ToUnit()
+                .Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)).ToUnit()
                 .Merge(this.WhenAnyValue(x => x.WindowHandle).ToUnit())
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => { Source = CaptureWindow(WindowHandle); })
@@ -49,7 +49,6 @@ namespace EFBot.Shared.Services
                 .Subscribe(
                     _ =>
                     {
-                        this.RaisePropertyChanged(nameof(Source));
                         this.RaisePropertyChanged(nameof(WindowRectangle));
                         this.RaisePropertyChanged(nameof(ButtonsArea));
                         this.RaisePropertyChanged(nameof(RefreshButtonArea));
@@ -167,10 +166,10 @@ namespace EFBot.Shared.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                Log.HandleException(e);
             }
-            
+
+            return null;
         }
 
         [StructLayout(LayoutKind.Sequential)]

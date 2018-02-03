@@ -97,11 +97,11 @@ namespace EFBot.Shared {
             
             botVision.Add(unitsRecognition);
 
-            allText.AppendFormat($"Unit text:\n{unitsRecognition.Text}\n");
+            allText.Append($"Unit text:\n{unitsRecognition.Text}\n");
             
             roiImage.ROI = gameSource.RefreshButtonArea;
             var refreshButtonRecognition = recognitionEngine.Recognize(roiImage);
-            allText.AppendFormat($"Refresh button:\n{refreshButtonRecognition.Text}\n");
+            allText.Append($"Refresh button:\n{refreshButtonRecognition.Text}\n");
             if (refreshButtonRecognition.Text == "00 00")
             {
                 TimeLeftTillRefresh = TimeSpan.Zero;

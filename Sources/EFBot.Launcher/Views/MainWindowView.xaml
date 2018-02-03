@@ -13,17 +13,17 @@
                     
             <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
                 
-                <StackPanel Orientation="Vertical">
-                    <ItemsControl ItemsSource="{Binding Controller.AvailableUnits}"/>
-                    <TextBox Text="{Binding Controller.RecognizedText}"></TextBox>
-                    <ListBox ItemsSource="{Binding BotVision}" VirtualizingPanel.ScrollUnit="Pixel">
+                <DockPanel>
+                    <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Controller.AvailableUnits}"/>
+                    <TextBox MaxHeight="150" DockPanel.Dock="Top" Text="{Binding Controller.RecognizedText}"></TextBox>
+                    <ListBox DockPanel.Dock="Top" ItemsSource="{Binding BotVision}" VirtualizingPanel.ScrollUnit="Pixel">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Image Margin="10,20" Source="{Binding}"></Image>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </StackPanel>
+                </DockPanel>
                 
                 
             </Border>
