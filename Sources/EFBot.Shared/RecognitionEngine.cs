@@ -45,7 +45,7 @@ namespace EFBot.Shared
             return new RecognitionResult()
             {
                 Text = CleanupText(text),
-                Image = source.ToBitmap(),
+                Image = source,
             };
         }
 
@@ -69,7 +69,7 @@ namespace EFBot.Shared
 
     public struct RecognitionResult
     {
-        public Bitmap Image { get; set; }
+        public IImage Image { get; set; }
         
         public String Text { get; set; }
     }

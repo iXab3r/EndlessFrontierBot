@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Media.Imaging;
+using DynamicData;
 using EFBot.Shared.Scaffolding;
 using EFBot.Shared.Services;
 using Emgu.CV;
@@ -11,24 +13,35 @@ using Emgu.CV.Structure;
 using ReactiveUI;
 
 namespace EFBot.Shared {
-    public sealed class BotController : ReactiveObject
+    public sealed class BotController : DisposableReactiveObject
     {
         private readonly GameImageSource gameSource;
-        private Bitmap botImage;
+        private IImage botImage;
         private UnitShopUnit[] availableUnits;
         private string recognizedText;
         private TimeSpan? timeLeftTillRefresh;
+        
+        private readonly SourceList<RecognitionResult> botVision = new SourceList<RecognitionResult>();
 
         private readonly RecognitionEngine recognitionEngine = new RecognitionEngine();
+        private readonly ReadOnlyObservableCollection<RecognitionResult> readonlyBotVision;
 
         public BotController(GameImageSource gameSource)
         {
             this.gameSource = gameSource;
-            gameSource.WhenAnyValue(x => x.Source)
+            gameSource
+                .WhenAnyValue(x => x.Source)
                 .Subscribe(Recalculate);
+
+            botVision
+                .Connect()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Bind(out readonlyBotVision)
+                .Subscribe()
+                .AddTo(Anchors);
         }
 
-        public Bitmap BotImage
+        public IImage BotImage
         {
             get { return botImage; }
             set { this.RaiseAndSetIfChanged(ref botImage, value); }
@@ -51,7 +64,12 @@ namespace EFBot.Shared {
             get { return recognizedText; }
             set { this.RaiseAndSetIfChanged(ref recognizedText, value); }
         }
-        
+
+        public ReadOnlyObservableCollection<RecognitionResult> BotVision
+        {
+            get { return readonlyBotVision; }
+        }
+
         private void Recalculate(Bitmap activeImage)
         {
             if (activeImage == null)
@@ -60,6 +78,7 @@ namespace EFBot.Shared {
                 return;
             }
             var allText = new StringBuilder();
+            botVision.Clear();
 
             var roiImage = new Image<Bgr, byte>(activeImage);
             
@@ -75,6 +94,8 @@ namespace EFBot.Shared {
                 .Select((x, idx) => new UnitShopUnit() {Idx = idx, Price = x})
                 .ToArray();
             AvailableUnits = IsValid(visibleUnitsInShop) ? visibleUnitsInShop : new UnitShopUnit[0];
+            
+            botVision.Add(unitsRecognition);
 
             allText.AppendFormat($"Unit text:\n{unitsRecognition.Text}\n");
             
@@ -89,8 +110,9 @@ namespace EFBot.Shared {
             {
                 TimeLeftTillRefresh = null;
             }
+            botVision.Add(refreshButtonRecognition);
 
-            BotImage = newBotImage.ToBitmap();
+            BotImage = newBotImage;
             RecognizedText = allText.ToString();
         }
 

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using DynamicData;
+using DynamicData.Binding;
 using EFBot.Shared;
 using EFBot.Shared.Scaffolding;
 using EFBot.Shared.Services;
@@ -9,10 +12,11 @@ using ReactiveUI;
 
 namespace EFBot.Launcher.ViewModels
 {
-    internal sealed class MainWindowViewModel : ReactiveObject
+    internal sealed class MainWindowViewModel : DisposableReactiveObject
     {
         private readonly GameImageSource gameSource;
         private readonly BotStrategy strategy;
+        private readonly ReadOnlyObservableCollection<BitmapSource> botVision;
 
         public MainWindowViewModel()
         {
@@ -29,10 +33,23 @@ namespace EFBot.Launcher.ViewModels
                 .Subscribe(x => this.RaisePropertyChanged(nameof(BotImage)));
 
             strategy = new BotStrategy(gameSource, Controller);
+
+            Controller.BotVision
+                .ToObservableChangeSet()
+                .Transform(x => x.Image?.Bitmap?.ToBitmapSource())
+                .Bind(out botVision)
+                .Subscribe()
+                .AddTo(Anchors);
         }
 
         public BitmapSource ActiveImage => gameSource.Source?.ToBitmapSource();
-        public BitmapSource BotImage => Controller.BotImage?.ToBitmapSource();
+        
+        public BitmapSource BotImage => Controller.BotImage?.Bitmap?.ToBitmapSource();
+
+        public ReadOnlyObservableCollection<BitmapSource> BotVision
+        {
+            get { return botVision; }
+        }
 
         public BotController Controller { get; }
     }

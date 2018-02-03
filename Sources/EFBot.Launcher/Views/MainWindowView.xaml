@@ -2,24 +2,30 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:viewModels="clr-namespace:EFBot.Launcher.ViewModels">
     <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
-        <DockPanel LastChildFill="True">
-            <Border DockPanel.Dock="Bottom" Margin="10">
-                <DockPanel>
-                    <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Green" BorderThickness="1">
-                        <Image Source="{Binding ActiveImage}"/>
-                    </Border>
+        <DockPanel>
+            <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Green" BorderThickness="1">
+                <Image Source="{Binding ActiveImage}"/>
+            </Border>
                     
-                    <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
-                        <Image Source="{Binding BotImage}"/>
-                    </Border>
+            <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
+                <Image Source="{Binding BotImage}"/>
+            </Border>
                     
-                    <Border DockPanel.Dock="Right" BorderBrush="Red" BorderThickness="1" Margin="10,0">
-                        <StackPanel Orientation="Vertical">
-                            <ItemsControl ItemsSource="{Binding Controller.AvailableUnits}"/>
-                            <TextBox Text="{Binding Controller.RecognizedText}"></TextBox>
-                        </StackPanel>
-                    </Border>
-                </DockPanel>
+            <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
+                
+                <StackPanel Orientation="Vertical">
+                    <ItemsControl ItemsSource="{Binding Controller.AvailableUnits}"/>
+                    <TextBox Text="{Binding Controller.RecognizedText}"></TextBox>
+                    <ListBox ItemsSource="{Binding BotVision}" VirtualizingPanel.ScrollUnit="Pixel">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Image Margin="10,20" Source="{Binding}"></Image>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+                
+                
             </Border>
         </DockPanel>
     </DataTemplate>
