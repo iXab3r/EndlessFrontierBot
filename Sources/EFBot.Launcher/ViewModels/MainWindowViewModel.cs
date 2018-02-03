@@ -17,11 +17,11 @@ namespace EFBot.Launcher.ViewModels
         public MainWindowViewModel()
         {
             gameSource = new GameImageSource();
+            
             gameSource.WhenAnyValue(x => x.Source)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(img => this.RaisePropertyChanged(nameof(ActiveImage)));
 
-            RecognizeCommand = ReactiveCommand.Create(RecognizeCommandExecuted);
             Controller = new BotController(gameSource);
 
             Controller.WhenAnyValue(x => x.BotImage)
@@ -35,12 +35,5 @@ namespace EFBot.Launcher.ViewModels
         public BitmapSource BotImage => Controller.BotImage?.ToBitmapSource();
 
         public BotController Controller { get; }
-
-        public ICommand RecognizeCommand { get; }
-
-        private void RecognizeCommandExecuted()
-        {
-            var image = ActiveImage;
-        }
     }
 }

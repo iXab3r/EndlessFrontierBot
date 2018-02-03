@@ -4,15 +4,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using EFBot.Launcher.Prism;
+using EFBot.Shared.Prism;
 using EFBot.Shared.Scaffolding;
 using log4net.Core;
 using ReactiveUI;
+using Unity;
 
 namespace EFBot.Launcher
 {
     public partial class App
     {
         private static readonly string AppVersion = $"v{Assembly.GetExecutingAssembly().GetName().Version}";
+        
+        private readonly UnityContainer container = new UnityContainer();
 
         public App()
         {
@@ -23,6 +28,9 @@ namespace EFBot.Launcher
             Log.Instance.Debug($"[App..ctor] Culture: {Thread.CurrentThread.CurrentCulture}, UICulture: {Thread.CurrentThread.CurrentUICulture}");
                 
             RxApp.SupportsRangeNotifications = false; //FIXME DynamicData (as of v4.11) does not support RangeNotifications
+
+            container.AddExtension(new UiContainerExtensions());
+            container.AddExtension(new SharedContainerExtensions());
         }
         
         private void InitializeLogging()

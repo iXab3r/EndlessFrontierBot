@@ -6,32 +6,59 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
+using EFBot.Shared.Scaffolding;
 using ReactiveUI;
 
 namespace EFBot.Shared.Services
 {
-    public sealed class GameImageSource : ReactiveObject
+    public sealed class GameImageSource : DisposableReactiveObject
     {
-        private Rectangle windowRectangle;
-        private Bitmap source;
         private IntPtr windowHandle;
 
         public GameImageSource()
         {
+            Log.Instance.Debug($"Initializing new GameImage source...");
+
             Observable
                 .Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => CaptureScreen());
-
-            this.WhenAnyValue(x => x.WindowRectangle)
+                .Select(x => FindWindow("Bluestacks"))
                 .DistinctUntilChanged()
+                .Subscribe(
+                    hwnd =>
+                    {
+                        if (hwnd != IntPtr.Zero)
+                        {
+                            Log.Instance.Debug($"New game window found: 0x{hwnd.ToInt64():x8}");
+                        }
+                        else
+                        {
+                            Log.Instance.Debug($"Game window not found");
+                        }
+                        WindowHandle = hwnd;
+                    })
+                .AddTo(Anchors);
+            
+            Observable
+                .Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(10)).ToUnit()
+                .Merge(this.WhenAnyValue(x => x.WindowHandle).ToUnit())
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => { Source = CaptureWindow(WindowHandle); })
+                .AddTo(Anchors);
+
+            this.WhenAnyValue(x => x.WindowHandle)
                 .Subscribe(
                     _ =>
                     {
+                        this.RaisePropertyChanged(nameof(Source));
+                        this.RaisePropertyChanged(nameof(WindowRectangle));
                         this.RaisePropertyChanged(nameof(ButtonsArea));
                         this.RaisePropertyChanged(nameof(RefreshButtonArea));
-                    });
+                        this.RaisePropertyChanged(nameof(IsForeground));
+                    })
+                .AddTo(Anchors);
         }
+
+        private Bitmap source;
 
         public Bitmap Source
         {
@@ -41,32 +68,19 @@ namespace EFBot.Shared.Services
 
         public IntPtr WindowHandle
         {
-            get { return windowHandle; }
-            set { this.RaiseAndSetIfChanged(ref windowHandle, value); }
+            get => windowHandle;
+            set => this.RaiseAndSetIfChanged(ref windowHandle, value);
         }
 
-        public Rectangle WindowRectangle
-        {
-            get { return windowRectangle; }
-            set { this.RaiseAndSetIfChanged(ref windowRectangle, value); }
-        }
+        public Rectangle WindowRectangle => GetWindowRect(WindowHandle);
 
         public Rectangle ButtonsArea => CalculateButtonsArea(WindowRectangle);
         
         public Rectangle RefreshButtonArea => CalculateRefreshButtonArea(WindowRectangle);
 
-        public bool IsForeground()
+        public bool IsForeground
         {
-            return WindowHandle != IntPtr.Zero && NativeMethods.GetForegroundWindow() == WindowHandle;
-        }
-        
-        private void CaptureScreen()
-        {
-            var window = FindWindow("Bluestacks");
-
-            WindowHandle = window;
-            WindowRectangle = GetWindowRect(window);
-            Source =  CaptureWindow(window);
+            get => WindowHandle != IntPtr.Zero && NativeMethods.GetForegroundWindow() == WindowHandle;
         }
 
         private Rectangle CalculateButtonsArea(Rectangle windowArea)
@@ -107,7 +121,7 @@ namespace EFBot.Shared.Services
 
         private IntPtr FindWindow(string procName)
         {
-            var proc = Process.GetProcessesByName(procName).FirstOrDefault();
+            var proc = Process.GetProcessesByName(procName).FirstOrDefault(x => x.MainWindowHandle != IntPtr.Zero);
             if (proc == null)
             {
                 return IntPtr.Zero;

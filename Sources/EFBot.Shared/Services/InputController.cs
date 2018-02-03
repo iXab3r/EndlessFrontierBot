@@ -71,7 +71,7 @@ namespace EFBot.Shared.Services {
                 return false;
             }
 
-            if (!gameSource.IsForeground())
+            if (!gameSource.IsForeground)
             {
                 return false;
             }
