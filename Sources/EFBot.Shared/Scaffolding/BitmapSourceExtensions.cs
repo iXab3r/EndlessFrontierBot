@@ -51,10 +51,13 @@ namespace EFBot.Shared.Scaffolding
         {
             var hBitmap = bitmap.GetHbitmap();
 
-            return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+            var result = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                 hBitmap,
                 IntPtr.Zero, Int32Rect.Empty,
                 System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+            DeleteObject(hBitmap);
+
+            return result;
         }
 
         /// <summary>

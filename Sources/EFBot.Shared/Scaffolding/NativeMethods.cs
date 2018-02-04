@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace EFBot.Shared {
+namespace EFBot.Shared.Scaffolding {
     internal static class NativeMethods
     {
         /// <summary>

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using EFBot.Launcher.Prism;
+using EFBot.Launcher.ViewModels;
 using EFBot.Shared.Prism;
 using EFBot.Shared.Scaffolding;
 using log4net.Core;
@@ -66,6 +67,14 @@ namespace EFBot.Launcher
             AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException;
             Application.Current.Dispatcher.UnhandledException -= DispatcherOnUnhandledException;
             TaskScheduler.UnobservedTaskException -= TaskSchedulerOnUnobservedTaskException;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            MainWindow = new MainWindow {DataContext = container.Resolve<MainWindowViewModel>()};
+            MainWindow.ShowDialog();
         }
     }
 }

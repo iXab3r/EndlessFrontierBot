@@ -11,7 +11,7 @@ using ReactiveUI;
 
 namespace EFBot.Shared.Services
 {
-    public sealed class GameImageSource : DisposableReactiveObject
+    public sealed class GameImageSource : DisposableReactiveObject, IGameImageSource
     {
         private IntPtr windowHandle;
 

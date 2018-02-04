@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using EFBot.Shared.Scaffolding;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.OCR;
 using Emgu.CV.Structure;
 
-namespace EFBot.Shared
+namespace EFBot.Shared.Services
 {
-    public sealed class RecognitionEngine
+    public sealed class RecognitionEngine : IRecognitionEngine
     {
         private readonly Tesseract tesseractEngine;
         
@@ -22,12 +18,17 @@ namespace EFBot.Shared
         {
             tesseractEngine = new Tesseract();
             tesseractEngine.Init(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), "eng", OcrEngineMode.TesseractOnly);
-            tesseractEngine.SetVariable("tessedit_char_whitelist", "1234567890:-");
+            tesseractEngine.SetVariable("tessedit_char_whitelist", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890:-.");
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public RecognitionResult Recognize(Image<Bgr, byte> source)
         {
+            if (source.Width == 0 || source.Height == 0)
+            {
+                return new RecognitionResult();
+            }
+            
             var img = source.Convert<Gray, byte>();
 
             img = img.Resize(2, Inter.Cubic);
@@ -54,15 +55,10 @@ namespace EFBot.Shared
             
             return new RecognitionResult()
             {
-                Text = CleanupText(text) + "\n" + string.Join("\n", charactes.Select(x => new { x.Text, x.Cost })),
+                Text = CleanupText(text),
+                DebugData = string.Join("\n", charactes.Select(x => new { x.Text, x.Cost })),
                 Image = source,
             };
-        }
-
-        public RecognitionResult Recognize(Bitmap image)
-        {
-            var source = new Image<Bgr, byte>(image);
-            return Recognize(source);
         }
 
         private string CleanupText(string text)
@@ -75,12 +71,5 @@ namespace EFBot.Shared
             
             return String.Join(Environment.NewLine, lines);
         }
-    }
-
-    public struct RecognitionResult
-    {
-        public IImage Image { get; set; }
-        
-        public String Text { get; set; }
     }
 }

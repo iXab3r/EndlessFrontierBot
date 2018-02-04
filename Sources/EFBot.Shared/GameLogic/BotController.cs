@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
-using System.Windows.Media.Imaging;
 using DynamicData;
 using EFBot.Shared.Scaffolding;
 using EFBot.Shared.Services;
@@ -12,10 +11,11 @@ using Emgu.CV;
 using Emgu.CV.Structure;
 using ReactiveUI;
 
-namespace EFBot.Shared {
+namespace EFBot.Shared.GameLogic {
     public sealed class BotController : DisposableReactiveObject
     {
-        private readonly GameImageSource gameSource;
+        private readonly IGameImageSource gameSource;
+        private readonly IRecognitionEngine recognitionEngine;
         private IImage botImage;
         private UnitShopUnit[] availableUnits;
         private string recognizedText;
@@ -23,12 +23,15 @@ namespace EFBot.Shared {
         
         private readonly SourceList<RecognitionResult> botVision = new SourceList<RecognitionResult>();
 
-        private readonly RecognitionEngine recognitionEngine = new RecognitionEngine();
         private readonly ReadOnlyObservableCollection<RecognitionResult> readonlyBotVision;
 
-        public BotController(GameImageSource gameSource)
+        public BotController(
+            IGameImageSource gameSource,
+            IRecognitionEngine recognitionEngine)
         {
             this.gameSource = gameSource;
+            this.recognitionEngine = recognitionEngine;
+            
             gameSource
                 .WhenAnyValue(x => x.Source)
                 .Subscribe(Recalculate);
@@ -72,13 +75,18 @@ namespace EFBot.Shared {
 
         private void Recalculate(Bitmap activeImage)
         {
-            if (activeImage == null)
+            TimeLeftTillRefresh = null;
+            AvailableUnits = new UnitShopUnit[0];
+            botVision.Clear();
+            BotImage = null;
+
+            if (activeImage == null || activeImage.Size.IsEmpty)
             {
-                BotImage = null;
+                RecognizedText = "Window not found";
                 return;
             }
+            
             var allText = new StringBuilder();
-            botVision.Clear();
 
             var roiImage = new Image<Bgr, byte>(activeImage);
             
@@ -97,18 +105,14 @@ namespace EFBot.Shared {
             
             botVision.Add(unitsRecognition);
 
-            allText.Append($"Unit text:\n{unitsRecognition.Text}\n");
+            allText.Append($"Unit text:\n{unitsRecognition.Text}\n\n{unitsRecognition.DebugData}\n");
             
             roiImage.ROI = gameSource.RefreshButtonArea;
             var refreshButtonRecognition = recognitionEngine.Recognize(roiImage);
-            allText.Append($"Refresh button:\n{refreshButtonRecognition.Text}\n");
-            if (refreshButtonRecognition.Text == "00 00")
+            allText.Append($"Refresh button:\n{refreshButtonRecognition.Text}\n{refreshButtonRecognition.DebugData}\n");
+            if (refreshButtonRecognition.Text == "00 00" || refreshButtonRecognition.Text == "00:00")
             {
                 TimeLeftTillRefresh = TimeSpan.Zero;
-            }
-            else
-            {
-                TimeLeftTillRefresh = null;
             }
             botVision.Add(refreshButtonRecognition);
 

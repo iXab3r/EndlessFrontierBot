@@ -10,8 +10,6 @@ namespace EFBot.Launcher
         public MainWindow()
         {
             InitializeComponent();
-
-            DataContext = new MainWindowViewModel();
         }
     }
 }

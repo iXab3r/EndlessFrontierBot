@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Drawing;
-using System.Windows.Input;
+using System.Threading;
 using WindowsInput;
-using WindowsInput.Native;
+using AutoIt;
+using EFBot.Shared.Scaffolding;
 using ReactiveUI;
 
 namespace EFBot.Shared.Services {
-    internal sealed class InputController : ReactiveObject
+    internal sealed class InputController : ReactiveObject, IInputController
     {
+        private static readonly TimeSpan ActionDelay = TimeSpan.FromSeconds(1);
+
         private readonly GameImageSource gameSource;
         private readonly UserInteractionsManager manager;
 
@@ -24,59 +26,79 @@ namespace EFBot.Shared.Services {
 
         public bool ClickOnRefreshButton()
         {
+            Log.Instance.Debug("Trying to click on Refresh button");
+            if (!IsOperationPossible())
+            {
+                return false;
+            }
+
+            var activeWindow = AutoItX.WinGetHandle("");
+            AutoItX.WinActivate(gameSource.WindowHandle);
+            AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, "R");
+            AutoItX.WinActivate(activeWindow);
+
+            return true;
+        }
+        
+        public bool ClickOnButtonByIdx(int idx)
+        {
+            Log.Instance.Debug($"Trying to click on Unit button #{idx}");
+
             if (!IsOperationPossible())
             {
                 return false;
             }
             
-            manager.SendKey(VirtualKeyCode.VK_R);
-            return true;
-        }
-
-        public bool ClickOnButtonByIdx(int idx)
-        {
-            if (!IsOperationPossible())
-            {
-                return false;
-            }
-
-            var keyToPress = VirtualKeyCode.CANCEL;
+            var keyToPress = string.Empty;
             switch (idx)
             {
                     case 0:
-                        keyToPress = VirtualKeyCode.VK_1;
+                        keyToPress = "1";
                         break;
                     case 1: 
-                        keyToPress = VirtualKeyCode.VK_2;
+                        keyToPress = "2";
                         break;
                     case 2: 
-                        keyToPress = VirtualKeyCode.VK_3;
+                        keyToPress = "3";
                         break;
                     case 3:
-                        keyToPress = VirtualKeyCode.VK_4;
+                        keyToPress = "4";
                         break;
             }
             
-            manager.SendKey(keyToPress);
-            manager.Delay(TimeSpan.FromSeconds(2));
-            manager.SendKey(VirtualKeyCode.RETURN);
-
+            var activeWindow = AutoItX.WinGetHandle("");
+            AutoItX.WinActivate(gameSource.WindowHandle);
+            AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, keyToPress);
+            AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, "{ENTER}");
+            AutoItX.WinActivate(activeWindow);
             return true;
+        }
+
+        private string GetOperationStatus()
+        {
+            if (gameSource.WindowRectangle.IsEmpty)
+            {
+                return "Window area is not specified";
+            }
+
+            if (gameSource.WindowHandle == IntPtr.Zero)
+            {
+                return "Window not found";
+            }
+
+            return string.Empty;
         }
 
         private bool IsOperationPossible()
         {
-            if (gameSource.WindowRectangle.IsEmpty)
+            var result = GetOperationStatus();
+            if (string.IsNullOrEmpty(result))
             {
-                return false;
+                return true;
             }
 
-            if (!gameSource.IsForeground)
-            {
-                return false;
-            }
-
-            return true;
+            Log.Instance.Warn($"Operation is not possible: {result}");
+            return false;
         }
     }
 }

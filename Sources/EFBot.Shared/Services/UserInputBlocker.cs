@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
-using EFBot.Shared.Services;
 
-namespace EFBot.Shared {
+namespace EFBot.Shared.Services {
     internal sealed class UserInputBlocker : IUserInputBlocker
     {
         public IDisposable Block()
@@ -14,13 +13,5 @@ namespace EFBot.Shared {
 
         [DllImport("user32.dll")]
         static extern bool BlockInput(bool blockInput);
-    }
-    
-    internal sealed class FakeUserInputBlocker : IUserInputBlocker
-    {
-        public IDisposable Block()
-        {
-            return Disposable.Empty;
-        }
     }
 }
