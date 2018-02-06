@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Blue.MVVM.Converter, Version=1.5.0.27868, Culture=neutral, PublicKeyToken=1bb1db17d606db59">
+      <HintPath>..\packages\Blue.MVVM.Converter.1.5.0\lib\net45\Blue.MVVM.Converter.dll</HintPath>
+    </Reference>
     <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e">
       <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
     </Reference>

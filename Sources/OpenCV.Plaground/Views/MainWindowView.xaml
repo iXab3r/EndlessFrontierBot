@@ -1,0 +1,113 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:viewModels="clr-namespace:OpenCV.Plaground.ViewModels"
+                    xmlns:s="clr-namespace:EFBot.Shared.Scaffolding;assembly=EFBot.Shared"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary
+            Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Slider.xaml" />
+        <ResourceDictionary
+            Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <DataTemplate DataType="{x:Type s:CommandWrapper}">
+        <DockPanel>
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                         Value="0"
+                         Visibility="{Binding IsBusy, Converter={StaticResource BoolFalseToCollapsedConverter}}"
+                         IsIndeterminate="True" />
+            <materialDesign:PackIcon DockPanel.Dock="Left" Kind="AlertCircleOutline" VerticalAlignment="Center"
+                                     Foreground="Red" Background="Transparent"
+                                     Visibility="{Binding Error, Converter={StaticResource NullToCollapsedConverter}}"
+                                     ToolTip="{Binding Error}" />
+            <Button DockPanel.Dock="Left" Command="{Binding}" Margin="5,0"
+                    CommandParameter="{Binding Path=(s:CommandWrapperHelper.CommandParameter), RelativeSource={RelativeSource Self}}"
+                    Content="{Binding Path=(s:CommandWrapperHelper.Text), RelativeSource={RelativeSource Self}}" />
+        </DockPanel>
+    </DataTemplate>
+
+
+    <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border Grid.Column="0" Grid.Row="0"
+                    BorderThickness="1" BorderBrush="Blue" Margin="10">
+                <ContentPresenter Content="{Binding ImageProvider}" />
+            </Border>
+
+            <DockPanel Grid.Row="1">
+                <Border DockPanel.Dock="Left" BorderThickness="1" BorderBrush="Blue" Margin="10">
+                    <Image Width="300" Source="{Binding LoadedBitmap}" />
+                </Border>
+
+                <Border DockPanel.Dock="Left" BorderThickness="1" BorderBrush="Red" Margin="10">
+                    <Image Width="300" Source="{Binding ProcessedBitmap}" />
+                </Border>
+
+                <Border DockPanel.Dock="Left" MinWidth="250" BorderThickness="1" BorderBrush="Green" Margin="10">
+                    <DockPanel VerticalAlignment="Top">
+                        <ContentPresenter DockPanel.Dock="Top" Margin="5,15"
+                                          s:CommandWrapperHelper.Text="Reset image"
+                                          Content="{Binding ResetImageCommand}" />
+
+                        <ContentPresenter DockPanel.Dock="Top" Margin="5"
+                                          s:CommandWrapperHelper.Text="Negate image"
+                                          Content="{Binding ApplyNotCommand}" />
+
+                        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Gaussian blur">
+                            <DockPanel>
+                                <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                        Minimum="1" Maximum="31" Name="GaussianBlurKernelSize" />
+
+                                <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                  Content="{Binding GaussianBlurCommand}">
+                                    <s:CommandWrapperHelper.CommandParameter>
+                                        <Binding ElementName="GaussianBlurKernelSize" Path="Value" />
+                                    </s:CommandWrapperHelper.CommandParameter>
+                                </ContentPresenter>
+                            </DockPanel>
+                        </GroupBox>
+
+                        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Canny">
+                            <DockPanel>
+                                <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                        Minimum="0" Maximum="100" Name="FindContoursThresholdMin" />
+                                <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                        Minimum="0" Maximum="100" Name="FindContoursThresholdMax" />
+
+                                <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                  Content="{Binding CannyCommand}">
+                                    <s:CommandWrapperHelper.CommandParameter>
+                                        <MultiBinding Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                            <Binding ElementName="FindContoursThresholdMin" Path="Value" />
+                                            <Binding ElementName="FindContoursThresholdMax" Path="Value" />
+                                        </MultiBinding>
+                                    </s:CommandWrapperHelper.CommandParameter>
+                                </ContentPresenter>
+                            </DockPanel>
+                        </GroupBox>
+
+                        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Find Contours">
+                            <DockPanel>
+
+                                <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                  Content="{Binding FindContoursCommand}" />
+                            </DockPanel>
+                        </GroupBox>
+                    </DockPanel>
+                </Border>
+
+                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Execution log">
+                    <DockPanel>
+                        <ListBox ItemsSource="{Binding ExecutionLog}" />
+                    </DockPanel>
+                </GroupBox>
+            </DockPanel>
+        </Grid>
+
+
+    </DataTemplate>
+</ResourceDictionary>

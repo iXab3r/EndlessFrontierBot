@@ -4,10 +4,11 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
+using EFBot.Shared.Scaffolding;
 
 namespace EFBot.Shared.Services
 {
-    internal sealed class UserInteractionsManager 
+    internal sealed class UserInteractionsManager : DisposableReactiveObject, IUserInteractionsManager
     {
         private TimeSpan actionDelay;
         private readonly IUserInputBlocker userInputBlocker;

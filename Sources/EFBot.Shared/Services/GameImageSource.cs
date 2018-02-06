@@ -51,6 +51,8 @@ namespace EFBot.Shared.Services
                     {
                         this.RaisePropertyChanged(nameof(WindowRectangle));
                         this.RaisePropertyChanged(nameof(ButtonsArea));
+                        this.RaisePropertyChanged(nameof(UnitNameAreas));
+                        this.RaisePropertyChanged(nameof(UnitPriceAreas));
                         this.RaisePropertyChanged(nameof(RefreshButtonArea));
                         this.RaisePropertyChanged(nameof(IsForeground));
                     })
@@ -80,6 +82,80 @@ namespace EFBot.Shared.Services
         public bool IsForeground
         {
             get => WindowHandle != IntPtr.Zero && NativeMethods.GetForegroundWindow() == WindowHandle;
+        }
+
+        public Rectangle[] UnitNameAreas => CalculateUnitNameAreas(WindowRectangle);
+        
+        public Rectangle[] UnitPriceAreas => CalculateUnitPriceAreas(WindowRectangle);
+        
+        private Rectangle[] CalculateUnitNameAreas(Rectangle windowArea)
+        {
+            var firstArea = new RectangleF(
+                    x: 90/533f,
+                    y: 535/1030f,
+                    width:  290/533f,
+                    height: 35/1030f
+                );
+            var secondArea = new RectangleF(
+                x: 90/533f,
+                y: 625/1030f,
+                width:  290/533f,
+                height: 35/1030f
+            );
+            var thirdArea = new RectangleF(
+                x: 90/533f,
+                y: 715/1030f,
+                width:  290/533f,
+                height: 35/1030f
+            );var fourthArea = new RectangleF(
+                x: 90/533f,
+                y: 805/1030f,
+                width:  290/533f,
+                height: 35/1030f
+            );
+
+            return new[]
+            {
+                firstArea.Multiply(windowArea).ToRectangle(),
+                secondArea.Multiply(windowArea).ToRectangle(),
+                thirdArea.Multiply(windowArea).ToRectangle(),
+                fourthArea.Multiply(windowArea).ToRectangle(),
+            };
+        }
+        
+        private Rectangle[] CalculateUnitPriceAreas(Rectangle windowArea)
+        {
+            var firstArea = new RectangleF(
+                x: 421/533f,
+                y: 540/1030f,
+                width:  85/533f,
+                height: 58/1030f
+            );
+            var secondArea = new RectangleF(
+                x: 421/533f,
+                y: 630/1030f,
+                width:  85/533f,
+                height: 58/1030f
+            );
+            var thirdArea = new RectangleF(
+                x: 421/533f,
+                y: 720/1030f,
+                width:  85/533f,
+                height: 58/1030f
+            );var fourthArea = new RectangleF(
+                x: 421/533f,
+                y: 810/1030f,
+                width:  85/533f,
+                height: 58/1030f
+            );
+
+            return new[]
+            {
+                firstArea.Multiply(windowArea).ToRectangle(),
+                secondArea.Multiply(windowArea).ToRectangle(),
+                thirdArea.Multiply(windowArea).ToRectangle(),
+                fourthArea.Multiply(windowArea).ToRectangle(),
+            };
         }
 
         private Rectangle CalculateButtonsArea(Rectangle windowArea)

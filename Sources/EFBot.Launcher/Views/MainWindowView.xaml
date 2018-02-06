@@ -14,8 +14,11 @@
             <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
                 
                 <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Height="30"  Orientation="Horizontal">
+                        <TextBlock Text="Enable Strategy" VerticalAlignment="Center"/>
+                        <ToggleButton IsChecked="{Binding ActiveStrategy.IsEnabled}"  Margin="10,0" />
+                    </StackPanel>
                     <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Controller.AvailableUnits}"/>
-                    <TextBox MaxHeight="150" DockPanel.Dock="Top" Text="{Binding Controller.RecognizedText}"></TextBox>
                     <ListBox DockPanel.Dock="Top" ItemsSource="{Binding BotVision}" VirtualizingPanel.ScrollUnit="Pixel">
                         <ListBox.ItemTemplate>
                             <DataTemplate>

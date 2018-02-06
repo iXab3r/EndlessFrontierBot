@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFBot.Launcher", "EFBot.Lau
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFBot.Shared", "EFBot.Shared\EFBot.Shared.csproj", "{96BCF24A-90B3-4218-A437-54F6605DF66E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCV.Plaground", "OpenCV.Plaground\OpenCV.Plaground.csproj", "{AD24DC58-5486-497D-A3AB-3917176241C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{96BCF24A-90B3-4218-A437-54F6605DF66E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96BCF24A-90B3-4218-A437-54F6605DF66E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96BCF24A-90B3-4218-A437-54F6605DF66E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD24DC58-5486-497D-A3AB-3917176241C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD24DC58-5486-497D-A3AB-3917176241C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD24DC58-5486-497D-A3AB-3917176241C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD24DC58-5486-497D-A3AB-3917176241C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

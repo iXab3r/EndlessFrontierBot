@@ -9,5 +9,8 @@ namespace EFBot.Shared.Services {
         Rectangle ButtonsArea { get; }
         Rectangle RefreshButtonArea { get; }
         bool IsForeground { get; }
+        
+        Rectangle[] UnitNameAreas { get; }
+        Rectangle[] UnitPriceAreas { get; }
     }
 }

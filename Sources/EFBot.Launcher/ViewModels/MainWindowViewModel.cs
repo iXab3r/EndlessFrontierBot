@@ -22,8 +22,8 @@ namespace EFBot.Launcher.ViewModels
 
         public MainWindowViewModel(
                 IGameImageSource gameSource,
-                IFactory<BotController, IGameImageSource> botControllerFactory,
-                IFactory<IBotStrategy, IGameImageSource, BotController> botStrategyFactory)
+                IFactory<IBotVisionModel, IGameImageSource> botVisionModelFactory,
+                IFactory<IBotStrategy, IGameImageSource, IBotVisionModel> botStrategyFactory)
         {
             this.gameSource = gameSource;
             
@@ -31,7 +31,7 @@ namespace EFBot.Launcher.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(img => this.RaisePropertyChanged(nameof(ActiveImage)));
 
-            Controller = botControllerFactory.Create(gameSource);
+            Controller = botVisionModelFactory.Create(gameSource);
 
             Controller.WhenAnyValue(x => x.BotImage)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -44,18 +44,17 @@ namespace EFBot.Launcher.ViewModels
                 .Subscribe()
                 .AddTo(Anchors);
             
-            botStrategyFactory.Create(gameSource, Controller);
+            ActiveStrategy = botStrategyFactory.Create(gameSource, Controller);
         }
 
         public BitmapSource ActiveImage => gameSource.Source?.ToBitmapSource();
         
         public BitmapSource BotImage => Controller.BotImage?.Bitmap?.ToBitmapSource();
 
-        public ReadOnlyObservableCollection<BitmapSource> BotVision
-        {
-            get { return botVision; }
-        }
+        public ReadOnlyObservableCollection<BitmapSource> BotVision => botVision;
 
-        public BotController Controller { get; }
+        public IBotVisionModel Controller { get; }
+        
+        public IBotStrategy ActiveStrategy { get; }
     }
 }

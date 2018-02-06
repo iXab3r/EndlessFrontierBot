@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using System.Threading;
 using WindowsInput;
 using AutoIt;
@@ -6,20 +7,24 @@ using EFBot.Shared.Scaffolding;
 using ReactiveUI;
 
 namespace EFBot.Shared.Services {
-    internal sealed class InputController : ReactiveObject, IInputController
+    internal sealed class GameInputController : DisposableReactiveObject, IGameInputController
     {
-        private static readonly TimeSpan ActionDelay = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan ShortActionDelay = TimeSpan.FromSeconds(0.250);
+        private static readonly TimeSpan ActionDelay = TimeSpan.FromSeconds(2);
 
-        private readonly GameImageSource gameSource;
-        private readonly UserInteractionsManager manager;
+        private readonly IGameImageSource gameSource;
+        private readonly IUserInteractionsManager manager;
 
-        public InputController(GameImageSource gameSource)
+        public GameInputController(
+            IGameImageSource gameSource,
+            IUserInteractionsManager manager)
         {
             this.gameSource = gameSource;
-            manager = new UserInteractionsManager(new InputSimulator(), new FakeUserInputBlocker());
+            this.manager = manager;
 
             gameSource.WhenAnyValue(x => x.WindowRectangle)
-                .Subscribe(_ => this.RaisePropertyChanged(nameof(IsAvailable)));
+                .Subscribe(_ => this.RaisePropertyChanged(nameof(IsAvailable)))
+                .AddTo(Anchors);
         }
 
         public bool IsAvailable => IsOperationPossible();
@@ -32,11 +37,12 @@ namespace EFBot.Shared.Services {
                 return false;
             }
 
-            var activeWindow = AutoItX.WinGetHandle("");
-            AutoItX.WinActivate(gameSource.WindowHandle);
-            AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, "R");
-            AutoItX.WinActivate(activeWindow);
-
+            using (SwitchWindowTo(gameSource.WindowHandle))
+            {
+                AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, "R");
+                manager.Delay(TimeSpan.FromMilliseconds(ActionDelay.TotalMilliseconds * 3));
+            }
+            
             return true;
         }
         
@@ -66,11 +72,14 @@ namespace EFBot.Shared.Services {
                         break;
             }
             
-            var activeWindow = AutoItX.WinGetHandle("");
-            AutoItX.WinActivate(gameSource.WindowHandle);
-            AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, keyToPress);
-            AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, "{ENTER}");
-            AutoItX.WinActivate(activeWindow);
+            using (SwitchWindowTo(gameSource.WindowHandle))
+            {
+                AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, keyToPress);
+                manager.Delay(ActionDelay);
+                AutoItX.ControlSend(gameSource.WindowHandle, IntPtr.Zero, "{ENTER}");
+                manager.Delay(ActionDelay);
+            }
+            
             return true;
         }
 
@@ -99,6 +108,24 @@ namespace EFBot.Shared.Services {
 
             Log.Instance.Warn($"Operation is not possible: {result}");
             return false;
+        }
+
+        private IDisposable SwitchWindowTo(IntPtr targetWindow)
+        {
+            var activeWindow = AutoItX.WinGetHandle("");
+            AutoItX.WinActivate(gameSource.WindowHandle);
+            if (AutoItX.WinWaitActive(gameSource.WindowHandle, (int) ActionDelay.TotalMilliseconds) != 0)
+            {
+                Log.Instance.Warn($"Failed to activate game window in {ShortActionDelay}");
+                return Disposable.Empty;
+            }
+
+            return Disposable.Create(
+                () =>
+                {
+                    AutoItX.WinActivate(activeWindow);
+                    manager.Delay(ActionDelay);
+                });
         }
     }
 }

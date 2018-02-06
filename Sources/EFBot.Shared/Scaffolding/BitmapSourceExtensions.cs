@@ -74,7 +74,7 @@ namespace EFBot.Shared.Scaffolding
             return result;
         }
 
-        internal static BitmapSource ToBitmapSource(this IImage image)
+        public static BitmapSource ToBitmapSource(this IImage image)
         {
             using (var source = image.Bitmap)
             {

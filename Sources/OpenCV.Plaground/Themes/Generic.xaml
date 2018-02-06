@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  
+    <ResourceDictionary.MergedDictionaries>
+        
+        <ResourceDictionary Source="pack://application:,,,/OpenCV.Plaground;component/Views/MainWindowView.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/OpenCV.Plaground;component/Views/ImageProviderView.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+  <Style TargetType="ContentControl">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="IsTabStop" Value="False" />
+  </Style>
+</ResourceDictionary>

@@ -1,0 +1,23 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:viewModels1="clr-namespace:OpenCV.Plaground.ViewModels">
+    <DataTemplate DataType="{x:Type viewModels1:ImageProviderViewModel}">
+        <ListBox 
+                 SelectedItem="{Binding SelectedImage}" 
+                 ItemsSource="{Binding Images}"
+                 VirtualizingPanel.ScrollUnit="Pixel">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel IsItemsHost="True"  />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type BitmapSource}">
+                    <Border BorderThickness="1">
+                        <Image Height="100" Width="100" HorizontalAlignment="Center" Source="{Binding}" Margin="5,10"/>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DataTemplate>
+</ResourceDictionary>

@@ -31,14 +31,14 @@ namespace EFBot.Shared.Services
             
             var img = source.Convert<Gray, byte>();
 
-            img = img.Resize(2, Inter.Cubic);
+            img = img.Resize(3, Inter.Cubic);
 
-            img = img.Not();
+            //img = img.Not();
 
-            img = img.ThresholdBinary(new Gray(0xA5), new Gray(0xFF));
+            //img = img.ThresholdBinary(new Gray(0xA5), new Gray(0xFF));
             
-            var mask = img.SmoothGaussian(3, 3, 9, 9);
-            img = img.AddWeighted(mask, 2, -1, 0.5);
+           // var mask = img.SmoothGaussian(3, 3, 9, 9);
+           // img = img.AddWeighted(mask, 2, -1, 0.5);
 
             tesseractEngine.PageSegMode = PageSegMode.SparseTextOsd;
             tesseractEngine.Recognize(img);
