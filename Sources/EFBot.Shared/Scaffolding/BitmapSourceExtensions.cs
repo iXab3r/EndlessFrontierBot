@@ -85,6 +85,7 @@ namespace EFBot.Shared.Scaffolding
                     IntPtr.Zero,
                     Int32Rect.Empty,
                     BitmapSizeOptions.FromEmptyOptions());
+                bs.Freeze();
 
                 DeleteObject(ptr); //release the HBitmap
                 return bs;

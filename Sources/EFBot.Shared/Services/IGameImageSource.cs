@@ -6,7 +6,6 @@ namespace EFBot.Shared.Services {
         Bitmap Source { get; set; }
         IntPtr WindowHandle { get; set; }
         Rectangle WindowRectangle { get; }
-        Rectangle ButtonsArea { get; }
         Rectangle RefreshButtonArea { get; }
         bool IsForeground { get; }
         

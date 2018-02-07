@@ -48,7 +48,7 @@ namespace OpenCV.Plaground.ViewModels
                 .AddTo(Anchors);
 
             this.WhenAnyValue(x => x.LoadedImage)
-                .Subscribe(x => ProcessedImage = LoadedImage?.Clone())
+                .Subscribe(x => ResetImageCommandExecuted())
                 .AddTo(Anchors);
         }
         

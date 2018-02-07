@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using DynamicData;
+using DynamicData.Binding;
 using EFBot.Shared.Scaffolding;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -22,31 +25,44 @@ namespace OpenCV.Plaground.ViewModels
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\EFTestData"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\EFTestData"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\EFTestData"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\PoeTestData"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\EFTestData"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\PoeTestData"),
         };
         
         public ImageProviderViewModel()
         {
             Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(30))
-                .Select(x => ImageDirectories.SelectMany(FindImages))
+                .Select(x => ImageDirectories.SelectMany(FindImages).ToArray())
                 .WithPrevious(
                     (prev, curr) =>
                     {
                         var imagesToLoad = curr.EmptyIfNull().Except(prev.EmptyIfNull()).ToArray();
                         return imagesToLoad;
                     })
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .Where(x => x.Length > 0)
                 .Subscribe(LoadImages)
                 .AddTo(Anchors);
 
-            Images.ItemsAdded
-                .Where(x => SelectedImage == null)
+            images
+                .Connect()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => SelectedImage = x)
+                .Bind(out readonlyImages)
+                .Subscribe()
+                .AddTo(Anchors);
+
+            readonlyImages
+                .ToObservableChangeSet()
+                .Where(x => SelectedImage == null)
+                .OnItemAdded(x => SelectedImage = x)
+                .Where(x => SelectedImage == null)
+                .Subscribe()
                 .AddTo(Anchors);
         }
 
         private BitmapSource selectedImage;
+        private readonly ISourceList<BitmapSource> images = new SourceList<BitmapSource>();
+        private readonly ReadOnlyObservableCollection<BitmapSource> readonlyImages;
 
         public BitmapSource SelectedImage
         {
@@ -54,7 +70,10 @@ namespace OpenCV.Plaground.ViewModels
             set { this.RaiseAndSetIfChanged(ref selectedImage, value); }
         }
 
-        public ReactiveList<BitmapSource> Images { get; } = new ReactiveList<BitmapSource>();
+        public ReadOnlyObservableCollection<BitmapSource> Images
+        {
+            get { return readonlyImages; }
+        }
 
         private void LoadImages(IEnumerable<string> imagePaths)
         {
@@ -62,7 +81,7 @@ namespace OpenCV.Plaground.ViewModels
             foreach (var imagePath in imagePaths)
             {
                 var image = new Image<Rgb, byte>(imagePath);
-                Images.Add(image.ToBitmapSource());
+                images.Add(image.ToBitmapSource());
             }
         }
         

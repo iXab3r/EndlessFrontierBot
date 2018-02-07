@@ -42,18 +42,28 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
                         var priceImg = inputImage.GetSubRect(x.priceArea);
                         var price = RecognitionEngine.Recognize(priceImg);
                         
-                        inputImage.Draw(x.nameArea, new Bgr(Color.Yellow), 1);
-                        inputImage.Draw(x.priceArea, new Bgr(Color.Yellow), 1);
-                        
-                        RecognitionResults.Add(name);
-                        RecognitionResults.Add(price);
-                    
-                        return new UnitShopUnit()
+                        var unit = new UnitShopUnit()
                         {
                             Idx = idx,
                             Price = price.Text,
                             Name = name.Text,
                         };
+
+                        if (IsValid(unit))
+                        {
+                            inputImage.Draw(x.nameArea, new Bgr(Color.Yellow), 1);
+                            inputImage.Draw(x.priceArea, new Bgr(Color.Yellow), 1);
+                            
+                            RecognitionResults.Add(name);
+                            RecognitionResults.Add(price);
+                        }
+                        else
+                        {
+                            inputImage.Draw(x.nameArea, new Bgr(Color.IndianRed), 1);
+                            inputImage.Draw(x.priceArea, new Bgr(Color.IndianRed), 1);
+                        }
+                        
+                        return unit;
                     })
                 .Where(IsValid)
                 .ToArray();

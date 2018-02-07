@@ -98,6 +98,9 @@
     <Reference Include="ReactiveUI, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\reactiveui-core.7.4.0\lib\Net45\ReactiveUI.dll</HintPath>
     </Reference>
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9">
+      <HintPath>..\packages\SlimDX.4.0.13.44\lib\NET40\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="Splat, Version=1.4.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Splat.1.4.0\lib\Net45\Splat.dll</HintPath>
     </Reference>
@@ -161,6 +164,11 @@
     <Compile Include="GameLogic\ImageReaders\UnitRefreshTimeReader.cs" />
     <Compile Include="GameLogic\ImageReaders\UnitsListReader.cs" />
     <Compile Include="GameLogic\UnitShopUnit.cs" />
+    <Compile Include="Native\D3D9CaptureSource.cs" />
+    <Compile Include="Native\IWindowCaptureSource.cs" />
+    <Compile Include="Native\PrintWindowCaptureSource.cs" />
+    <Compile Include="Native\Rect.cs" />
+    <Compile Include="Native\NativeMethods.cs" />
     <Compile Include="Prism\Factory.cs" />
     <Compile Include="Prism\Factory`2.cs" />
     <Compile Include="Prism\Factory`3.cs" />
@@ -189,7 +197,6 @@
     <Compile Include="Scaffolding\IDisposableReactiveObject.cs" />
     <Compile Include="Scaffolding\LambdaComparer.cs" />
     <Compile Include="Scaffolding\Log.cs" />
-    <Compile Include="Scaffolding\NativeMethods.cs" />
     <Compile Include="Scaffolding\ObjectExtensions.cs" />
     <Compile Include="Scaffolding\ObservableExtensions.cs" />
     <Compile Include="Scaffolding\PropagatingMultiValueConverter.cs" />

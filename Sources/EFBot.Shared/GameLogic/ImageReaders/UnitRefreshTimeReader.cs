@@ -23,13 +23,25 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
             
             var imageToProcess = inputImage.GetSubRect(ImageSource.RefreshButtonArea);
             var refreshButtonRecognition = RecognitionEngine.Recognize(imageToProcess);
-            if (refreshButtonRecognition.Text == "00 00" || refreshButtonRecognition.Text == "00:00")
+
+            if (!TimeSpan.TryParseExact(refreshButtonRecognition.Text,  "mm\\:ss", null, out var result))
             {
-                Entity = TimeSpan.Zero;
+                Entity = null;
+            }
+            else
+            {
+                Entity = result;
             }
             
-            inputImage.Draw(ImageSource.RefreshButtonArea, new Bgr(Color.Blue), 2);
-            RecognitionResults.Add(refreshButtonRecognition);
+            if (Entity != null)
+            {
+                inputImage.Draw(ImageSource.RefreshButtonArea, new Bgr(Color.Blue), 1);
+                RecognitionResults.Add(refreshButtonRecognition);
+            }
+            else
+            {
+                inputImage.Draw(ImageSource.RefreshButtonArea, new Bgr(Color.IndianRed), 1);
+            }
             
             Text = $"Refresh button:\n{refreshButtonRecognition.Text}\n{refreshButtonRecognition.DebugData}";
         }

@@ -19,6 +19,7 @@
                         <ToggleButton IsChecked="{Binding ActiveStrategy.IsEnabled}"  Margin="10,0" />
                     </StackPanel>
                     <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Controller.AvailableUnits}"/>
+                    <TextBlock Text="{Binding Controller.TimeLeftTillRefresh}"/>
                     <ListBox DockPanel.Dock="Top" ItemsSource="{Binding BotVision}" VirtualizingPanel.ScrollUnit="Pixel">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
