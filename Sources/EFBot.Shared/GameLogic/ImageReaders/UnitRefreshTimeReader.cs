@@ -10,7 +10,7 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
     {
         public UnitRefreshTimeReader(IRecognitionEngine recognitionEngine, IGameImageSource imgSource) : base(recognitionEngine, imgSource) { }
         
-        public override void Refresh(Image<Bgr, byte> inputImage)
+        public override void Refresh(Image<Rgb, byte> inputImage)
         {
             Clear();
             
@@ -35,12 +35,12 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
             
             if (Entity != null)
             {
-                inputImage.Draw(ImageSource.RefreshButtonArea, new Bgr(Color.Blue), 1);
+                inputImage.Draw(ImageSource.RefreshButtonArea, new Rgb(Color.Blue), 1);
                 RecognitionResults.Add(refreshButtonRecognition);
             }
             else
             {
-                inputImage.Draw(ImageSource.RefreshButtonArea, new Bgr(Color.IndianRed), 1);
+                inputImage.Draw(ImageSource.RefreshButtonArea, new Rgb(Color.IndianRed), 1);
             }
             
             Text = $"Refresh button:\n{refreshButtonRecognition.Text}\n{refreshButtonRecognition.DebugData}";

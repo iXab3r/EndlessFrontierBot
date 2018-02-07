@@ -12,7 +12,7 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
     {
         public UnitsListReader(IRecognitionEngine recognitionEngine, IGameImageSource imgSource) : base(recognitionEngine, imgSource) { }
 
-        public override void Refresh(Image<Bgr, byte> inputImage)
+        public override void Refresh(Image<Rgb, byte> inputImage)
         {
             Clear();
             
@@ -33,7 +33,7 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
                         var starMask = nameImg.Convert<Hsv, byte>()
                             .Split()[0]
                             .InRange(new Gray(10), new Gray(60))
-                            .Convert<Bgr, byte>(); 
+                            .Convert<Rgb, byte>(); 
 
                         nameImg = nameImg.Sub(starMask);
                         
@@ -51,16 +51,16 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
 
                         if (IsValid(unit))
                         {
-                            inputImage.Draw(x.nameArea, new Bgr(Color.Yellow), 1);
-                            inputImage.Draw(x.priceArea, new Bgr(Color.Yellow), 1);
+                            inputImage.Draw(x.nameArea, new Rgb(Color.Yellow), 1);
+                            inputImage.Draw(x.priceArea, new Rgb(Color.Yellow), 1);
                             
                             RecognitionResults.Add(name);
                             RecognitionResults.Add(price);
                         }
                         else
                         {
-                            inputImage.Draw(x.nameArea, new Bgr(Color.IndianRed), 1);
-                            inputImage.Draw(x.priceArea, new Bgr(Color.IndianRed), 1);
+                            inputImage.Draw(x.nameArea, new Rgb(Color.IndianRed), 1);
+                            inputImage.Draw(x.priceArea, new Rgb(Color.IndianRed), 1);
                         }
                         
                         return unit;

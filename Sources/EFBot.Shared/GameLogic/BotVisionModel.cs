@@ -101,7 +101,7 @@ namespace EFBot.Shared.GameLogic {
                 return;
             }
 
-            var resultingImage = new Image<Bgr, byte>(activeImage);
+            var resultingImage = new Image<Rgb, byte>(activeImage);
             readersToRefresh.ForEach(x => x.Refresh(resultingImage));
 
             TimeLeftTillRefresh = unitRefreshTimeReader.Entity;

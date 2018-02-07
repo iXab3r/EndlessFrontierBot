@@ -161,6 +161,8 @@
     <Compile Include="GameLogic\IBotStrategy.cs" />
     <Compile Include="GameLogic\IBotVisionModel.cs" />
     <Compile Include="GameLogic\ImageReaders\IImageReader.cs" />
+    <Compile Include="GameLogic\ImageReaders\ImageReaderBase.cs" />
+    <Compile Include="GameLogic\ImageReaders\UnitAcquisitionConfirmationDialogReader.cs" />
     <Compile Include="GameLogic\ImageReaders\UnitRefreshTimeReader.cs" />
     <Compile Include="GameLogic\ImageReaders\UnitsListReader.cs" />
     <Compile Include="GameLogic\UnitShopUnit.cs" />

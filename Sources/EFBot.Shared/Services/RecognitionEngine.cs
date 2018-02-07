@@ -22,7 +22,7 @@ namespace EFBot.Shared.Services
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public RecognitionResult Recognize(Image<Bgr, byte> source)
+        public RecognitionResult Recognize(Image<Rgb, byte> source)
         {
             if (source.Width == 0 || source.Height == 0)
             {
@@ -33,23 +33,16 @@ namespace EFBot.Shared.Services
 
             img = img.Resize(3, Inter.Cubic);
 
-            //img = img.Not();
-
-            //img = img.ThresholdBinary(new Gray(0xA5), new Gray(0xFF));
-            
-           // var mask = img.SmoothGaussian(3, 3, 9, 9);
-           // img = img.AddWeighted(mask, 2, -1, 0.5);
-
             tesseractEngine.PageSegMode = PageSegMode.SparseTextOsd;
             tesseractEngine.Recognize(img);
             var text = tesseractEngine.GetText();
 
-            source = img.Convert<Bgr, byte>();
+            source = img.Convert<Rgb, byte>();
 
             var charactes = tesseractEngine.GetCharacters();
             foreach (var recognizedCharacter in charactes)
             {
-                source.Draw(recognizedCharacter.Region, new Bgr(Color.Red), 1, LineType.AntiAlias);
+                source.Draw(recognizedCharacter.Region, new Rgb(Color.Red), 1, LineType.AntiAlias);
             }
             
             
