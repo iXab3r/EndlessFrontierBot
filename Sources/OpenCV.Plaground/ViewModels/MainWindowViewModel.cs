@@ -39,8 +39,12 @@ namespace OpenCV.Plaground.ViewModels
             GaussianBlurCommand = CommandWrapper.Create<double>(
                 args => ExecuteImageOperation(x => new GaussianBlueImageOperation().Process(x, Convert.ToInt32(args))));
             FindContoursCommand = CommandWrapper.Create(
-                () => ExecuteImageOperation(x => new FindContoursImageOperation().Process(x)));
-            
+                () => ExecuteImageOperation(x => new FindContoursImageOperation().Process(x)));      
+            ColorRemovalCommand = CommandWrapper.Create<object[]>(
+                args => ExecuteImageOperation(x => new ColorRemovalOperation().Process(x, Convert.ToDouble(args[0]), Convert.ToDouble(args[1]))));
+            TemplateDetectionCommand = CommandWrapper.Create<object[]>(
+                args => ExecuteImageOperation(x => new TemplateDetectionOperation().Process(x, Convert.ToString(args[0]).Trim('"'))));
+        
             ImageProvider = new ImageProviderViewModel();
             ImageProvider.WhenAnyValue(x => x.SelectedImage)
                 .Where(x => x != null)
@@ -75,6 +79,8 @@ namespace OpenCV.Plaground.ViewModels
         public ICommand CannyCommand { get; }
         public ICommand FindContoursCommand { get; }
         public ICommand GaussianBlurCommand { get; }
+        public ICommand ColorRemovalCommand { get; }
+        public ICommand TemplateDetectionCommand { get; }
         
         public ReactiveList<string> ExecutionLog { get; } = new ReactiveList<string>();
 

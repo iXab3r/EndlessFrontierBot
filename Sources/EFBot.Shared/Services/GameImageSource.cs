@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
 using EFBot.Shared.Native;
 using EFBot.Shared.Scaffolding;
 using ReactiveUI;
@@ -14,16 +11,28 @@ namespace EFBot.Shared.Services
 {
     public sealed class GameImageSource : DisposableReactiveObject, IGameImageSource
     {
+        private readonly IWindowCaptureSource captureSource = new PrintWindowCaptureSource();
+
+        private TimeSpan period;
+
+        private Bitmap source;
         private IntPtr windowHandle;
 
-        private IWindowCaptureSource captureSource = new PrintWindowCaptureSource();
-        
         public GameImageSource()
         {
             Log.Instance.Debug($"Initializing new GameImage source...");
-
-            Observable
-                .Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1))
+            
+            var timer = this.WhenAnyValue(x => x.Period)
+                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Select(
+                    x => x > TimeSpan.Zero 
+                        ?  Observable.Timer(DateTimeOffset.Now, x)
+                        :  Observable.Never<long>())
+                .Switch()
+                .Publish();
+            timer.Connect().AddTo(Anchors);
+            
+            timer
                 .Select(x => FindWindow("Bluestacks"))
                 .DistinctUntilChanged()
                 .Subscribe(
@@ -37,14 +46,14 @@ namespace EFBot.Shared.Services
                         {
                             Log.Instance.Debug($"Game window not found");
                         }
+
                         WindowHandle = hwnd;
                     })
                 .AddTo(Anchors);
-            
-            Observable
-                .Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1)).ToUnit()
+
+            timer
+                .ToUnit()
                 .Merge(this.WhenAnyValue(x => x.WindowHandle).ToUnit())
-                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => { Source = captureSource.Capture(WindowHandle); })
                 .AddTo(Anchors);
 
@@ -61,12 +70,16 @@ namespace EFBot.Shared.Services
                 .AddTo(Anchors);
         }
 
-        private Bitmap source;
+        public TimeSpan Period
+        {
+            get => period;
+            set => this.RaiseAndSetIfChanged(ref period, value);
+        }
 
         public Bitmap Source
         {
-            get { return source; }
-            set { this.RaiseAndSetIfChanged(ref source, value); }
+            get => source;
+            set => this.RaiseAndSetIfChanged(ref source, value);
         }
 
         public IntPtr WindowHandle
@@ -79,39 +92,50 @@ namespace EFBot.Shared.Services
 
         public Rectangle RefreshButtonArea => CalculateRefreshButtonArea(WindowRectangle);
 
-        public bool IsForeground
-        {
-            get => WindowHandle != IntPtr.Zero && NativeMethods.GetForegroundWindow() == WindowHandle;
-        }
+        public bool IsForeground => WindowHandle != IntPtr.Zero && NativeMethods.GetForegroundWindow() == WindowHandle;
 
         public Rectangle[] UnitNameAreas => CalculateUnitNameAreas(WindowRectangle);
-        
+
         public Rectangle[] UnitPriceAreas => CalculateUnitPriceAreas(WindowRectangle);
+        
+        public Rectangle GameFieldArea => CalculateGameFieldArea(WindowRectangle);
+
+        private Rectangle CalculateGameFieldArea(Rectangle windowArea)
+        {
+            var fieldArea = new RectangleF(
+                0 / 533f,
+                274 / 1030f,
+                531 / 533f,
+                132 / 1030f
+            );
+            return fieldArea.Multiply(windowArea).ToRectangle();
+        }
         
         private Rectangle[] CalculateUnitNameAreas(Rectangle windowArea)
         {
             var firstArea = new RectangleF(
-                    x: 90/533f,
-                    y: 535/1030f,
-                    width:  290/533f,
-                    height: 35/1030f
-                );
+                90 / 533f,
+                535 / 1030f,
+                290 / 533f,
+                35 / 1030f
+            );
             var secondArea = new RectangleF(
-                x: 90/533f,
-                y: 625/1030f,
-                width:  290/533f,
-                height: 35/1030f
+                90 / 533f,
+                625 / 1030f,
+                290 / 533f,
+                35 / 1030f
             );
             var thirdArea = new RectangleF(
-                x: 90/533f,
-                y: 715/1030f,
-                width:  290/533f,
-                height: 35/1030f
-            );var fourthArea = new RectangleF(
-                x: 90/533f,
-                y: 805/1030f,
-                width:  290/533f,
-                height: 35/1030f
+                90 / 533f,
+                715 / 1030f,
+                290 / 533f,
+                35 / 1030f
+            );
+            var fourthArea = new RectangleF(
+                90 / 533f,
+                805 / 1030f,
+                290 / 533f,
+                35 / 1030f
             );
 
             return new[]
@@ -119,34 +143,35 @@ namespace EFBot.Shared.Services
                 firstArea.Multiply(windowArea).ToRectangle(),
                 secondArea.Multiply(windowArea).ToRectangle(),
                 thirdArea.Multiply(windowArea).ToRectangle(),
-                fourthArea.Multiply(windowArea).ToRectangle(),
+                fourthArea.Multiply(windowArea).ToRectangle()
             };
         }
-        
+
         private Rectangle[] CalculateUnitPriceAreas(Rectangle windowArea)
         {
             var firstArea = new RectangleF(
-                x: 421/533f,
-                y: 540/1030f,
-                width:  85/533f,
-                height: 58/1030f
+                421 / 533f,
+                540 / 1030f,
+                85 / 533f,
+                58 / 1030f
             );
             var secondArea = new RectangleF(
-                x: 421/533f,
-                y: 630/1030f,
-                width:  85/533f,
-                height: 58/1030f
+                421 / 533f,
+                630 / 1030f,
+                85 / 533f,
+                58 / 1030f
             );
             var thirdArea = new RectangleF(
-                x: 421/533f,
-                y: 720/1030f,
-                width:  85/533f,
-                height: 58/1030f
-            );var fourthArea = new RectangleF(
-                x: 421/533f,
-                y: 810/1030f,
-                width:  85/533f,
-                height: 58/1030f
+                421 / 533f,
+                720 / 1030f,
+                85 / 533f,
+                58 / 1030f
+            );
+            var fourthArea = new RectangleF(
+                421 / 533f,
+                810 / 1030f,
+                85 / 533f,
+                58 / 1030f
             );
 
             return new[]
@@ -154,23 +179,23 @@ namespace EFBot.Shared.Services
                 firstArea.Multiply(windowArea).ToRectangle(),
                 secondArea.Multiply(windowArea).ToRectangle(),
                 thirdArea.Multiply(windowArea).ToRectangle(),
-                fourthArea.Multiply(windowArea).ToRectangle(),
+                fourthArea.Multiply(windowArea).ToRectangle()
             };
         }
-        
+
         private Rectangle CalculateRefreshButtonArea(Rectangle windowArea)
         {
             var relative = new RectangleF(
-                x: 359/534f,
-                y: 491/1031f,
-                width:  68/534f,
-                height: 23/1031f);
+                359 / 534f,
+                491 / 1031f,
+                68 / 534f,
+                23 / 1031f);
 
             var result = new Rectangle(
-                x: (int)(windowArea.Width * relative.X),
-                y: (int)(windowArea.Height * relative.Y),
-                width:  (int)(windowArea.Width * relative.Width),
-                height: (int)(windowArea.Height * relative.Height)
+                (int) (windowArea.Width * relative.X),
+                (int) (windowArea.Height * relative.Y),
+                (int) (windowArea.Width * relative.Width),
+                (int) (windowArea.Height * relative.Height)
             );
 
             return result;
@@ -186,6 +211,5 @@ namespace EFBot.Shared.Services
 
             return proc.MainWindowHandle;
         }
-
     }
 }

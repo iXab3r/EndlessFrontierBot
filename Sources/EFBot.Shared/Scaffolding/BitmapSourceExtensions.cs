@@ -7,6 +7,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 using Point = System.Drawing.Point;
 
@@ -90,6 +93,31 @@ namespace EFBot.Shared.Scaffolding
                 DeleteObject(ptr); //release the HBitmap
                 return bs;
             }
+        }
+        
+        /// <summary>
+        ///     Find contours using the specific memory storage
+        /// </summary>
+        /// <param name="method">The type of approximation method</param>
+        /// <param name="type">The retrieval type</param>
+        /// <param name="stor">The storage used by the sequences</param>
+        /// <returns>
+        ///     Contour if there is any;
+        ///     null if no contour is found
+        /// </returns>
+        public static VectorOfVectorOfPoint FindContours(this Image<Gray, byte> image, ChainApproxMethod method = ChainApproxMethod.ChainApproxSimple,
+            RetrType type = RetrType.List)
+        {
+            //Check that all parameters are valid.
+            var result = new VectorOfVectorOfPoint();
+
+            if (method == ChainApproxMethod.ChainCode)
+            {
+                throw new NotImplementedException();
+            }
+
+            CvInvoke.FindContours(image, result, null, type, method);
+            return result;
         }
     }
 }

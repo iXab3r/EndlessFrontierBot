@@ -5,10 +5,10 @@
         <ListBox 
                  SelectedItem="{Binding SelectedImage}" 
                  ItemsSource="{Binding Images}"
-                 VirtualizingPanel.ScrollUnit="Pixel">
+                 VirtualizingPanel.ScrollUnit="Pixel" ScrollViewer.HorizontalScrollBarVisibility="Visible">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel IsItemsHost="True"  />
+                    <StackPanel Orientation="Horizontal" IsItemsHost="True"  />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>

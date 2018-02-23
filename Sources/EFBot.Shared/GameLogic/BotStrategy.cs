@@ -29,20 +29,13 @@ namespace EFBot.Shared.GameLogic
             this.localStorage = localStorage;
             this.botVisionModel = botVisionModel;
             this.controller = controllerFactory.Create(gameSource);
-
-            botVisionModel
-                .WhenAnyValue(x => x.AvailableUnits)
-                .Sample(SamplingPeriod)
-                .Where(x => IsEnabled)
-                .Subscribe(ProcessNextUnitsPack)
-                .AddTo(Anchors);
             
-            botVisionModel
-                .WhenAnyValue(x => x.TimeLeftTillRefresh)
+            Observable.Merge(
+                    botVisionModel.WhenAnyValue(x => x.AvailableUnits).ToUnit(),
+                    this.WhenAnyValue(x => x.IsEnabled).ToUnit(),
+                    botVisionModel.WhenAnyValue(x => x.TimeLeftTillRefresh).ToUnit())
                 .Sample(SamplingPeriod)
-                .Where(x => IsEnabled)
-                .Where(x => x != null && x.Value == TimeSpan.Zero)
-                .Subscribe(x => HandlePackRefreshAvailability())
+                .Subscribe(x => ProcessState())
                 .AddTo(Anchors);
         }
 
@@ -56,6 +49,18 @@ namespace EFBot.Shared.GameLogic
         {
             Log.Instance.Debug("Clicking on Refresh button...");
             controller.ClickOnRefreshButton();
+        }
+
+        private void ProcessState()
+        {
+            if (botVisionModel.TimeLeftTillRefresh <= TimeSpan.Zero)
+            {
+                HandlePackRefreshAvailability();
+            }
+            else if (botVisionModel.AvailableUnits != null)
+            {
+                ProcessNextUnitsPack(botVisionModel.AvailableUnits);
+            }
         }
 
         private void ProcessNextUnitsPack(UnitShopUnit[] units)

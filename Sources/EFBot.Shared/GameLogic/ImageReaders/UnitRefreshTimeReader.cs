@@ -24,7 +24,7 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
             var imageToProcess = inputImage.GetSubRect(ImageSource.RefreshButtonArea);
             var refreshButtonRecognition = RecognitionEngine.Recognize(imageToProcess);
 
-            if (!TimeSpan.TryParseExact(refreshButtonRecognition.Text,  "mm\\:ss", null, out var result))
+            if (!TimeSpan.TryParseExact(refreshButtonRecognition.Text.Replace(" ", string.Empty),  "mm\\:ss", null, out var result))
             {
                 Entity = null;
             }
@@ -43,7 +43,7 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
                 inputImage.Draw(ImageSource.RefreshButtonArea, new Rgb(Color.IndianRed), 1);
             }
             
-            Text = $"Refresh button:\n{refreshButtonRecognition.Text}\n{refreshButtonRecognition.DebugData}";
+            Text = $"Refresh button:\n{refreshButtonRecognition.Text}";
         }
     }
 }

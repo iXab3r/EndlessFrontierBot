@@ -1,0 +1,82 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="clr-namespace:EFBot.Shared.Scaffolding;assembly=EFBot.Shared"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    xmlns:viewModels="clr-namespace:RaysVideoMixer.ViewModels">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary
+            Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Slider.xaml" />
+        <ResourceDictionary
+            Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <DataTemplate DataType="{x:Type s:CommandWrapper}">
+        <DockPanel>
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                         Value="0"
+                         Visibility="{Binding IsBusy, Converter={StaticResource BoolFalseToCollapsedConverter}}"
+                         IsIndeterminate="True" />
+            <materialDesign:PackIcon DockPanel.Dock="Left" Kind="AlertCircleOutline" VerticalAlignment="Center"
+                                     Foreground="Red" Background="Transparent"
+                                     Visibility="{Binding Error, Converter={StaticResource NullToCollapsedConverter}}"
+                                     ToolTip="{Binding Error}" />
+            <Button DockPanel.Dock="Left" Command="{Binding}" Margin="5,0"
+                    CommandParameter="{Binding Path=(s:CommandWrapperHelper.CommandParameter), RelativeSource={RelativeSource Self}}"
+                    Content="{Binding Path=(s:CommandWrapperHelper.Text), RelativeSource={RelativeSource Self}}" />
+        </DockPanel>
+    </DataTemplate>
+
+
+    <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
+            <DockPanel>
+                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Combine">
+                    <DockPanel>
+                        <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                Minimum="0" Maximum="360" Value="55" Name="ColorThresholdMin" />
+                        <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                Minimum="0" Maximum="360" Value="65" Name="ColorThresholdMax" />
+
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                            <ContentPresenter s:CommandWrapperHelper.Text="Play" Width="300"
+                                              Content="{Binding PlayCommand}">
+                                <s:CommandWrapperHelper.CommandParameter>
+                                    <MultiBinding
+                                        Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                        <Binding ElementName="ColorThresholdMin" Path="Value" />
+                                        <Binding ElementName="ColorThresholdMax" Path="Value" />
+                                    </MultiBinding>
+                                </s:CommandWrapperHelper.CommandParameter>
+                            </ContentPresenter>
+                            <ContentPresenter  s:CommandWrapperHelper.Text="Stop"  Width="300"
+                                              Content="{Binding StopCommand}">
+                            </ContentPresenter>
+                        </StackPanel>
+                    </DockPanel>
+                </GroupBox>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <DockPanel Grid.Column="0" >
+                        <CheckBox DockPanel.Dock="Top" Content="Preview loaded image" IsChecked="{Binding PreviewLoadedImage}"/>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Image Grid.Row="0" Margin="20" Source="{Binding LoadedImage}"/>
+                            <Image Grid.Row="1" Margin="20" Source="{Binding BackgroundImage}"/>
+                        </Grid>
+                    </DockPanel>
+                    
+                    <DockPanel Grid.Column="1" >
+                        <CheckBox DockPanel.Dock="Top" Content="Preview processed image" IsChecked="{Binding PreviewProcessedImage}"/>
+                        <Image DockPanel.Dock="Top"  Margin="20" Source="{Binding ProcessedImage}"/>
+                    </DockPanel>
+                </Grid>
+            </DockPanel>
+    </DataTemplate>
+</ResourceDictionary>

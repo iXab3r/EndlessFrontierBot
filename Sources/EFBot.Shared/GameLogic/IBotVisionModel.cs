@@ -19,5 +19,7 @@ namespace EFBot.Shared.GameLogic
         string Text { get; set; }
         
         string Error { get; set; }
+        
+        double FramesPerSecond { get; }
     }
 }

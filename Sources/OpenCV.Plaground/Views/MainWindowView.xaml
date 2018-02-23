@@ -39,72 +39,117 @@
             </Border>
 
             <DockPanel Grid.Row="1">
-                <Border DockPanel.Dock="Left" BorderThickness="1" BorderBrush="Blue" Margin="10">
-                    <Image Width="300" Source="{Binding LoadedBitmap}" />
-                </Border>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <Border DockPanel.Dock="Left" BorderThickness="1" BorderBrush="Red" Margin="10">
-                    <Image Width="300" Source="{Binding ProcessedBitmap}" />
-                </Border>
+                    <Image Grid.Column="0" MinWidth="300" Margin="10,0" Source="{Binding LoadedBitmap}" />
+                    <Image Grid.Column="1" MinWidth="300" Margin="10,0" Source="{Binding ProcessedBitmap}" />
 
-                <Border DockPanel.Dock="Left" MinWidth="250" BorderThickness="1" BorderBrush="Green" Margin="10">
-                    <DockPanel VerticalAlignment="Top">
-                        <ContentPresenter DockPanel.Dock="Top" Margin="5,15"
-                                          s:CommandWrapperHelper.Text="Reset image"
-                                          Content="{Binding ResetImageCommand}" />
+                    <Border Grid.Column="2" MinWidth="250" BorderThickness="1" BorderBrush="Green" Margin="10">
+                        <DockPanel VerticalAlignment="Top">
+                            <ContentPresenter DockPanel.Dock="Top" Margin="5,15"
+                                              s:CommandWrapperHelper.Text="Reset image"
+                                              Content="{Binding ResetImageCommand}" />
 
-                        <ContentPresenter DockPanel.Dock="Top" Margin="5"
-                                          s:CommandWrapperHelper.Text="Negate image"
-                                          Content="{Binding ApplyNotCommand}" />
+                            <ContentPresenter DockPanel.Dock="Top" Margin="5"
+                                              s:CommandWrapperHelper.Text="Negate image"
+                                              Content="{Binding ApplyNotCommand}" />
+                            
+                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Template Detection">
+                                <DockPanel>
+                                    <TextBox DockPanel.Dock="Top" x:Name="TemplateDetectionTemplatePath" 
+                                             materialDesign:HintAssist.Hint="Template file path"
+                                             Height="30" Margin="5"
+                                             ></TextBox>
+                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Find" 
+                                                      Content="{Binding TemplateDetectionCommand}">
+                                        <s:CommandWrapperHelper.CommandParameter>
+                                            <MultiBinding
+                                                Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                                <Binding ElementName="TemplateDetectionTemplatePath" Path="Text" />
+                                            </MultiBinding>
+                                        </s:CommandWrapperHelper.CommandParameter>
+                                    </ContentPresenter>
+                                </DockPanel>
+                            </GroupBox>
 
-                        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Gaussian blur">
-                            <DockPanel>
-                                <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                        Minimum="1" Maximum="31" Name="GaussianBlurKernelSize" />
+                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Gaussian blur">
+                                <DockPanel>
+                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                            Minimum="1" Maximum="31" Name="GaussianBlurKernelSize" />
 
-                                <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
-                                                  Content="{Binding GaussianBlurCommand}">
-                                    <s:CommandWrapperHelper.CommandParameter>
-                                        <Binding ElementName="GaussianBlurKernelSize" Path="Value" />
-                                    </s:CommandWrapperHelper.CommandParameter>
-                                </ContentPresenter>
-                            </DockPanel>
-                        </GroupBox>
+                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                      Content="{Binding GaussianBlurCommand}">
+                                        <s:CommandWrapperHelper.CommandParameter>
+                                            <Binding ElementName="GaussianBlurKernelSize" Path="Value" />
+                                        </s:CommandWrapperHelper.CommandParameter>
+                                    </ContentPresenter>
+                                </DockPanel>
+                            </GroupBox>
 
-                        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Canny">
-                            <DockPanel>
-                                <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                        Minimum="0" Maximum="100" Name="FindContoursThresholdMin" />
-                                <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                        Minimum="0" Maximum="100" Name="FindContoursThresholdMax" />
+                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Color removal">
+                                <DockPanel>
+                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                            Minimum="0" Maximum="360" Value="110" Name="ColorThresholdMin" />
+                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                            Minimum="0" Maximum="360" Value="130" Name="ColorThresholdMax" />
 
-                                <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
-                                                  Content="{Binding CannyCommand}">
-                                    <s:CommandWrapperHelper.CommandParameter>
-                                        <MultiBinding Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
-                                            <Binding ElementName="FindContoursThresholdMin" Path="Value" />
-                                            <Binding ElementName="FindContoursThresholdMax" Path="Value" />
-                                        </MultiBinding>
-                                    </s:CommandWrapperHelper.CommandParameter>
-                                </ContentPresenter>
-                            </DockPanel>
-                        </GroupBox>
+                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                      Content="{Binding ColorRemovalCommand}">
+                                        <s:CommandWrapperHelper.CommandParameter>
+                                            <MultiBinding
+                                                Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                                <Binding ElementName="ColorThresholdMin" Path="Value" />
+                                                <Binding ElementName="ColorThresholdMax" Path="Value" />
+                                            </MultiBinding>
+                                        </s:CommandWrapperHelper.CommandParameter>
+                                    </ContentPresenter>
+                                </DockPanel>
+                            </GroupBox>
 
-                        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Find Contours">
-                            <DockPanel>
+                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Canny">
+                                <DockPanel>
+                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                            Minimum="0" Maximum="100" Name="CannyThresholdMin" />
+                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                            Minimum="0" Maximum="100" Name="CannyThresholdMax" />
 
-                                <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
-                                                  Content="{Binding FindContoursCommand}" />
-                            </DockPanel>
-                        </GroupBox>
-                    </DockPanel>
-                </Border>
+                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                      Content="{Binding CannyCommand}">
+                                        <s:CommandWrapperHelper.CommandParameter>
+                                            <MultiBinding
+                                                Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                                <Binding ElementName="CannyThresholdMin" Path="Value" />
+                                                <Binding ElementName="CannyThresholdMax" Path="Value" />
+                                            </MultiBinding>
+                                        </s:CommandWrapperHelper.CommandParameter>
+                                    </ContentPresenter>
+                                </DockPanel>
+                            </GroupBox>
 
-                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Execution log">
-                    <DockPanel>
-                        <ListBox ItemsSource="{Binding ExecutionLog}" />
-                    </DockPanel>
-                </GroupBox>
+                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Find Contours">
+                                <DockPanel>
+
+                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                      Content="{Binding FindContoursCommand}" />
+                                </DockPanel>
+                            </GroupBox>
+                        </DockPanel>
+                    </Border>
+
+                    <GroupBox Grid.Column="3" Margin="5" Header="Execution log" Width="200">
+                        <DockPanel>
+                            <ListBox ItemsSource="{Binding ExecutionLog}" />
+                        </DockPanel>
+                    </GroupBox>
+                </Grid>
+
+
             </DockPanel>
         </Grid>
 

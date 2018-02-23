@@ -26,8 +26,10 @@ namespace OpenCV.Plaground.ViewModels
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\EFTestData"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\EFTestData"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\PoeTestData"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\GreenScreenTestData"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\EFTestData"),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\PoeTestData"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\GreenScreenTestData"),
         };
         
         public ImageProviderViewModel()

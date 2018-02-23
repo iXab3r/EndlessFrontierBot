@@ -1,29 +1,62 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:viewModels="clr-namespace:EFBot.Launcher.ViewModels">
+                    xmlns:viewModels="clr-namespace:EFBot.Launcher.ViewModels"
+                    xmlns:services="clr-namespace:EFBot.Shared.Services;assembly=EFBot.Shared">
+    
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/EFBot.Shared;component/Themes/Converters.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    
     <DataTemplate DataType="{x:Type viewModels:MainWindowViewModel}">
-        <DockPanel>
-            <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Green" BorderThickness="1">
-                <Image Source="{Binding ActiveImage}"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            
+            <Border Grid.Column="0" Margin="5,0" BorderBrush="Green" BorderThickness="1">
+                <DockPanel>
+                    <CheckBox DockPanel.Dock="Top" Content="Preview active image" IsChecked="{Binding PreviewActiveImage}"/>
+                    <Image DockPanel.Dock="Top" 
+                           Source="{Binding ActiveImage}"
+                           Visibility="{Binding PreviewActiveImage, Converter={StaticResource BoolFalseToCollapsedConverter}}"/>
+                </DockPanel>
             </Border>
                     
-            <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
-                <Image Source="{Binding BotImage}"/>
+            <Border Grid.Column="1" Margin="5,0" DockPanel.Dock="Left" BorderBrush="Red" BorderThickness="1">
+                <DockPanel>
+                    <CheckBox DockPanel.Dock="Top" Content="Preview bot image" IsChecked="{Binding PreviewBotImage}"/>
+                    <Image DockPanel.Dock="Top" 
+                           Source="{Binding BotImage}"
+                           Visibility="{Binding PreviewBotImage, Converter={StaticResource BoolFalseToCollapsedConverter}}"/>
+                </DockPanel>
             </Border>
                     
-            <Border Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
+            <Border Grid.Column="2" Margin="5,0" DockPanel.Dock="Left" BorderBrush="Blue" BorderThickness="1">
                 
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Height="30"  Orientation="Horizontal">
-                        <TextBlock Text="Enable Strategy" VerticalAlignment="Center"/>
-                        <ToggleButton IsChecked="{Binding ActiveStrategy.IsEnabled}"  Margin="10,0" />
+                        <TextBlock Text="Period" VerticalAlignment="Center"/>
+                        <Slider Value="{Binding SourcePeriodInMilliseconds}" VerticalAlignment="Center" Width="200" Minimum="200" Maximum="10000"  Margin="10,0" />
                     </StackPanel>
+                    <CheckBox DockPanel.Dock="Top" Content="Enable trading strategy" IsChecked="{Binding ActiveStrategy.IsEnabled}"/>
+                    <CheckBox DockPanel.Dock="Top" Content="Show debug data" IsChecked="{Binding ShowBotDebugData}"/>
+                    
                     <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Controller.AvailableUnits}"/>
-                    <TextBlock Text="{Binding Controller.TimeLeftTillRefresh}"/>
-                    <ListBox DockPanel.Dock="Top" ItemsSource="{Binding BotVision}" VirtualizingPanel.ScrollUnit="Pixel">
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding Controller.FramesPerSecond, StringFormat='Processed FPS: {0:F1}'}"/>
+                    
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding Controller.TimeLeftTillRefresh}"/>
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding Controller.Text}"/>
+                    <ListBox DockPanel.Dock="Top" ItemsSource="{Binding BotVision}" 
+                             Visibility="{Binding ShowBotDebugData, Converter={StaticResource BoolFalseToCollapsedConverter}}"
+                             VirtualizingPanel.ScrollUnit="Pixel">
                         <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Image Margin="10,20" Source="{Binding}"></Image>
+                            <DataTemplate DataType="{x:Type services:RecognitionResult}">
+                                <GroupBox Header="{Binding Text}">
+                                    <Image ToolTip="{Binding DebugData}"
+                                           Source="{Binding Image, Converter={StaticResource OpenCvImageToBitmapSourceConverterKey}}"/>
+                                </GroupBox>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -31,6 +64,6 @@
                 
                 
             </Border>
-        </DockPanel>
+        </Grid>
     </DataTemplate>
 </ResourceDictionary>

@@ -4,8 +4,9 @@
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="pack://application:,,,/EFBot.Launcher;component/Views/MainWindowView.xaml" />
+    <ResourceDictionary Source="pack://application:,,,/EFBot.Shared;component/Themes/Generic.xaml" />
   </ResourceDictionary.MergedDictionaries>
-
+  
   <Style TargetType="ContentControl">
     <Setter Property="Focusable" Value="False" />
     <Setter Property="IsTabStop" Value="False" />

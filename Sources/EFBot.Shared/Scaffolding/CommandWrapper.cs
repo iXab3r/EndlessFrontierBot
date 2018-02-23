@@ -19,6 +19,12 @@ namespace EFBot.Shared.Scaffolding {
             isBusy = command.IsExecuting.ToProperty(this, x => x.IsBusy);
             command.ThrownExceptions.Subscribe(HandleException).AddTo(Anchors);
         }
+        
+        public static CommandWrapper Create(ReactiveCommand command)
+        {
+            return new CommandWrapper(command);
+        }
+        
 
         public static CommandWrapper Create(Func<Task> execute, IObservable<bool> canExecute)
         {

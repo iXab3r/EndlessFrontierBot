@@ -1,4 +1,5 @@
 ﻿using System;
+using EFBot.Shared.Scaffolding;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
@@ -11,10 +12,11 @@ namespace OpenCV.Plaground.Models
         public override OperationResult Process(Image<Rgb, byte> source)
         {
             var result = new OperationResult();
+            
+            var resultingImg = source.Clone();
             var img = source.Convert<Gray, byte>().PyrDown().PyrUp();
 
-            var resultingImg = source.Clone();
-            var contours = FindContours(img, ChainApproxMethod.ChainApproxSimple, RetrType.Tree);
+            var contours = img.FindContours(ChainApproxMethod.ChainApproxSimple, RetrType.Tree);
             var contCount = contours.Size;
             for (var i = 0; i < contCount; i++)
             {
@@ -23,8 +25,6 @@ namespace OpenCV.Plaground.Models
 
             for (var i = 0; i < contCount; i++)
             {
-                CvInvoke.DrawContours(resultingImg, contours, i, new MCvScalar(255, 0, 0));
-
                 using (var contour = contours[i])
                 {
                     using (var approxContour = new VectorOfPoint())
@@ -71,31 +71,6 @@ namespace OpenCV.Plaground.Models
         private string ToString(VectorOfPoint vector)
         {
             return string.Join(" ", vector.ToArray());
-        }
-
-        /// <summary>
-        ///     Find contours using the specific memory storage
-        /// </summary>
-        /// <param name="method">The type of approximation method</param>
-        /// <param name="type">The retrieval type</param>
-        /// <param name="stor">The storage used by the sequences</param>
-        /// <returns>
-        ///     Contour if there is any;
-        ///     null if no contour is found
-        /// </returns>
-        public static VectorOfVectorOfPoint FindContours(Image<Gray, byte> image, ChainApproxMethod method = ChainApproxMethod.ChainApproxSimple,
-            RetrType type = RetrType.List)
-        {
-            //Check that all parameters are valid.
-            var result = new VectorOfVectorOfPoint();
-
-            if (method == ChainApproxMethod.ChainCode)
-            {
-                throw new NotImplementedException();
-            }
-
-            CvInvoke.FindContours(image, result, null, type, method);
-            return result;
         }
     }
 }

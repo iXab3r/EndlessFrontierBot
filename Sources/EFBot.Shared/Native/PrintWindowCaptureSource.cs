@@ -17,6 +17,11 @@ namespace EFBot.Shared.Native
             try
             {
                 var region = NativeMethods.GetAbsoluteClientRect(hwnd);
+                if (region.IsEmpty || region.Width == 0 || region.Height == 0)
+                {
+                    return null;
+                }
+                
                 var bmp = new Bitmap(region.Width, region.Height, PixelFormat.Format32bppArgb);
                 var gfxBmp = Graphics.FromImage(bmp);
                 var hdcBitmap = gfxBmp.GetHdc();
