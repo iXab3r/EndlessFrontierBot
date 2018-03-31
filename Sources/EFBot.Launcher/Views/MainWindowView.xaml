@@ -38,8 +38,10 @@
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Height="30"  Orientation="Horizontal">
                         <TextBlock Text="Period" VerticalAlignment="Center"/>
-                        <Slider Value="{Binding SourcePeriodInMilliseconds}" VerticalAlignment="Center" Width="200" Minimum="200" Maximum="10000"  Margin="10,0" />
+                        <Slider Value="{Binding SourcePeriodInMilliseconds}" VerticalAlignment="Center" Width="200" Minimum="50" Maximum="10000"  Margin="10,0" />
                     </StackPanel>
+                    <ContentPresenter Content="{Binding SendClickCommand}"/>
+                    <CheckBox DockPanel.Dock="Top" Content="Enable CV" IsChecked="{Binding Controller.IsTrackingEnabled}"/>
                     <CheckBox DockPanel.Dock="Top" Content="Enable trading strategy" IsChecked="{Binding ActiveStrategy.IsEnabled}"/>
                     <CheckBox DockPanel.Dock="Top" Content="Show debug data" IsChecked="{Binding ShowBotDebugData}"/>
                     

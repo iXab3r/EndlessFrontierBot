@@ -3,6 +3,7 @@
                     xmlns:blue="http://www.nuget.org/Blue.MVVM"
                     xmlns:eye="http://coderush.net/poeeye/"
                     xmlns:converters="clr-namespace:EFBot.Shared.Scaffolding.Converters;assembly=EFBot.Shared">
+  <converters:OpenCvImageToBitmapSourceConverter x:Key="OpenCvImageToBitmapSourceConverterKey" />
 
   <converters:NullToVisibilityConverter x:Key="NullToCollapsedConverter" NullValue="Collapsed" NotNullValue="Visible" />
   <converters:NullToVisibilityConverter x:Key="NotNullToCollapsedConverter" NullValue="Visible"

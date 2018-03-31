@@ -22,6 +22,11 @@ namespace EFBot.Shared.GameLogic.ImageReaders {
                 return;
             }
 
+            if (Context.GetOrDefault<UnitRefreshTimeReader>()?.Entity == null)
+            {
+                return;
+            }
+
             var units = ImageSource.UnitNameAreas
                 .Zip(ImageSource.UnitPriceAreas, (nameArea, priceArea) => new {nameArea, priceArea})
                 .Select(

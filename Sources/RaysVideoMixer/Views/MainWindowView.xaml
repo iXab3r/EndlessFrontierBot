@@ -2,12 +2,11 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:s="clr-namespace:EFBot.Shared.Scaffolding;assembly=EFBot.Shared"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-                    xmlns:viewModels="clr-namespace:RaysVideoMixer.ViewModels">
+                    xmlns:viewModels="clr-namespace:RaysVideoMixer.ViewModels"
+                    xmlns:controls="clr-namespace:RaysVideoMixer.Controls">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary
-            Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Slider.xaml" />
-        <ResourceDictionary
-            Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Slider.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <DataTemplate DataType="{x:Type s:CommandWrapper}">
@@ -35,6 +34,8 @@
                                 Minimum="0" Maximum="360" Value="55" Name="ColorThresholdMin" />
                         <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
                                 Minimum="0" Maximum="360" Value="65" Name="ColorThresholdMax" />
+                        
+                        <controls:RangeSlider Width="400" Minimum="200" Maximum="800" />
 
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
                             <ContentPresenter s:CommandWrapperHelper.Text="Play" Width="300"
@@ -49,6 +50,17 @@
                             </ContentPresenter>
                             <ContentPresenter  s:CommandWrapperHelper.Text="Stop"  Width="300"
                                               Content="{Binding StopCommand}">
+                            </ContentPresenter>
+                            
+                            <ContentPresenter s:CommandWrapperHelper.Text="Show static" Width="300"
+                                              Content="{Binding ShowStaticCommand}">
+                                <s:CommandWrapperHelper.CommandParameter>
+                                    <MultiBinding
+                                        Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                        <Binding ElementName="ColorThresholdMin" Path="Value" />
+                                        <Binding ElementName="ColorThresholdMax" Path="Value" />
+                                    </MultiBinding>
+                                </s:CommandWrapperHelper.CommandParameter>
                             </ContentPresenter>
                         </StackPanel>
                     </DockPanel>

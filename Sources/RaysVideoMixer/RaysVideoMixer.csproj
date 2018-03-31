@@ -145,7 +145,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\RangeSlider.xaml.cs" />
+    <Compile Include="Services\IChromaKeyImageProcessor.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Page Include="Controls\RangeSlider.xaml" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

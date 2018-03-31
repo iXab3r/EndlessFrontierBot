@@ -158,6 +158,7 @@
     <Compile Include="GameLogic\BotVisionModel.cs" />
     <Compile Include="GameLogic\BotStrategy.cs" />
     <Compile Include="GameLogic\EFUnitScreenReader.cs" />
+    <Compile Include="GameLogic\FrameContext.cs" />
     <Compile Include="GameLogic\IBotStrategy.cs" />
     <Compile Include="GameLogic\IBotVisionModel.cs" />
     <Compile Include="GameLogic\ImageReaders\GoldChestReader.cs" />

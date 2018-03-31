@@ -2,7 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:viewModels="clr-namespace:OpenCV.Plaground.ViewModels"
                     xmlns:s="clr-namespace:EFBot.Shared.Scaffolding;assembly=EFBot.Shared"
-                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    xmlns:controls="clr-namespace:RaysVideoMixer.Controls;assembly=RaysVideoMixer"
+                    xmlns:models="clr-namespace:OpenCV.Plaground.Models">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary
             Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Slider.xaml" />
@@ -51,100 +53,165 @@
                     <Image Grid.Column="1" MinWidth="300" Margin="10,0" Source="{Binding ProcessedBitmap}" />
 
                     <Border Grid.Column="2" MinWidth="250" BorderThickness="1" BorderBrush="Green" Margin="10">
-                        <DockPanel VerticalAlignment="Top">
-                            <ContentPresenter DockPanel.Dock="Top" Margin="5,15"
-                                              s:CommandWrapperHelper.Text="Reset image"
-                                              Content="{Binding ResetImageCommand}" />
+                        <ScrollViewer>
+                            <DockPanel VerticalAlignment="Top">
+                                <ContentPresenter DockPanel.Dock="Top" Margin="5,15"
+                                                  s:CommandWrapperHelper.Text="Reset image"
+                                                  Content="{Binding ResetImageCommand}" />
 
-                            <ContentPresenter DockPanel.Dock="Top" Margin="5"
-                                              s:CommandWrapperHelper.Text="Negate image"
-                                              Content="{Binding ApplyNotCommand}" />
-                            
-                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Template Detection">
-                                <DockPanel>
-                                    <TextBox DockPanel.Dock="Top" x:Name="TemplateDetectionTemplatePath" 
-                                             materialDesign:HintAssist.Hint="Template file path"
-                                             Height="30" Margin="5"
-                                             ></TextBox>
-                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Find" 
-                                                      Content="{Binding TemplateDetectionCommand}">
-                                        <s:CommandWrapperHelper.CommandParameter>
-                                            <MultiBinding
-                                                Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
-                                                <Binding ElementName="TemplateDetectionTemplatePath" Path="Text" />
-                                            </MultiBinding>
-                                        </s:CommandWrapperHelper.CommandParameter>
-                                    </ContentPresenter>
-                                </DockPanel>
-                            </GroupBox>
+                                <ContentPresenter DockPanel.Dock="Top" Margin="5"
+                                                  s:CommandWrapperHelper.Text="Negate image"
+                                                  Content="{Binding ApplyNotCommand}" />
 
-                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Gaussian blur">
-                                <DockPanel>
-                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                            Minimum="1" Maximum="31" Name="GaussianBlurKernelSize" />
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Canvas effect">
+                                    <DockPanel>
+                                        <Slider DockPanel.Dock="Top"
+                                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                                Minimum="0" Maximum="1" Value="0.25" TickFrequency="0.01"
+                                                x:Name="CanvasEffectAlpha" />
 
-                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
-                                                      Content="{Binding GaussianBlurCommand}">
-                                        <s:CommandWrapperHelper.CommandParameter>
-                                            <Binding ElementName="GaussianBlurKernelSize" Path="Value" />
-                                        </s:CommandWrapperHelper.CommandParameter>
-                                    </ContentPresenter>
-                                </DockPanel>
-                            </GroupBox>
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                          Content="{Binding CanvasEffectCommand}">
+                                            <s:CommandWrapperHelper.CommandParameter>
+                                                <Binding ElementName="CanvasEffectAlpha" Path="Value" />
+                                            </s:CommandWrapperHelper.CommandParameter>
+                                        </ContentPresenter>
+                                    </DockPanel>
+                                </GroupBox>
 
-                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Color removal">
-                                <DockPanel>
-                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                            Minimum="0" Maximum="360" Value="110" Name="ColorThresholdMin" />
-                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                            Minimum="0" Maximum="360" Value="130" Name="ColorThresholdMax" />
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Template Detection">
+                                    <DockPanel>
+                                        <TextBox DockPanel.Dock="Top" x:Name="TemplateDetectionTemplatePath"
+                                                 materialDesign:HintAssist.Hint="Template file path"
+                                                 Height="30" Margin="5" />
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Find"
+                                                          Content="{Binding TemplateDetectionCommand}">
+                                            <s:CommandWrapperHelper.CommandParameter>
+                                                <MultiBinding
+                                                    Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                                    <Binding ElementName="TemplateDetectionTemplatePath" Path="Text" />
+                                                </MultiBinding>
+                                            </s:CommandWrapperHelper.CommandParameter>
+                                        </ContentPresenter>
+                                    </DockPanel>
+                                </GroupBox>
 
-                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
-                                                      Content="{Binding ColorRemovalCommand}">
-                                        <s:CommandWrapperHelper.CommandParameter>
-                                            <MultiBinding
-                                                Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
-                                                <Binding ElementName="ColorThresholdMin" Path="Value" />
-                                                <Binding ElementName="ColorThresholdMax" Path="Value" />
-                                            </MultiBinding>
-                                        </s:CommandWrapperHelper.CommandParameter>
-                                    </ContentPresenter>
-                                </DockPanel>
-                            </GroupBox>
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Gaussian blur">
+                                    <DockPanel>
+                                        <Slider DockPanel.Dock="Top"
+                                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                                Minimum="1" Maximum="31" Name="GaussianBlurKernelSize" />
 
-                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Canny">
-                                <DockPanel>
-                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                            Minimum="0" Maximum="100" Name="CannyThresholdMin" />
-                                    <Slider DockPanel.Dock="Top" Style="{StaticResource MaterialDesignDiscreteSlider}"
-                                            Minimum="0" Maximum="100" Name="CannyThresholdMax" />
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                          Content="{Binding GaussianBlurCommand}">
+                                            <s:CommandWrapperHelper.CommandParameter>
+                                                <Binding ElementName="GaussianBlurKernelSize" Path="Value" />
+                                            </s:CommandWrapperHelper.CommandParameter>
+                                        </ContentPresenter>
+                                    </DockPanel>
+                                </GroupBox>
 
-                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
-                                                      Content="{Binding CannyCommand}">
-                                        <s:CommandWrapperHelper.CommandParameter>
-                                            <MultiBinding
-                                                Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
-                                                <Binding ElementName="CannyThresholdMin" Path="Value" />
-                                                <Binding ElementName="CannyThresholdMax" Path="Value" />
-                                            </MultiBinding>
-                                        </s:CommandWrapperHelper.CommandParameter>
-                                    </ContentPresenter>
-                                </DockPanel>
-                            </GroupBox>
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Dilate image">
+                                    <DockPanel>
+                                        <Slider DockPanel.Dock="Top"
+                                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                                Minimum="1" Maximum="31" Name="DilateIterationsCount" />
 
-                            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Find Contours">
-                                <DockPanel>
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                          Content="{Binding DilateCommand}">
+                                            <s:CommandWrapperHelper.CommandParameter>
+                                                <Binding ElementName="DilateIterationsCount" Path="Value" />
+                                            </s:CommandWrapperHelper.CommandParameter>
+                                        </ContentPresenter>
+                                    </DockPanel>
+                                </GroupBox>
 
-                                    <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
-                                                      Content="{Binding FindContoursCommand}" />
-                                </DockPanel>
-                            </GroupBox>
-                        </DockPanel>
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Erode image">
+                                    <DockPanel>
+                                        <Slider DockPanel.Dock="Top"
+                                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                                Minimum="1" Maximum="31" Name="ErodeIterationsCount" />
+
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                          Content="{Binding ErodeCommand}">
+                                            <s:CommandWrapperHelper.CommandParameter>
+                                                <Binding ElementName="ErodeIterationsCount" Path="Value" />
+                                            </s:CommandWrapperHelper.CommandParameter>
+                                        </ContentPresenter>
+                                    </DockPanel>
+                                </GroupBox>
+
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Color removal">
+                                    <DockPanel>
+                                        <controls:RangeSlider DockPanel.Dock="Top"
+                                                              Minimum="0" Maximum="360"
+                                                              Height="40"
+                                                              LowerValue="70" UpperValue="110" Name="ColorThreshold" />
+
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                          Content="{Binding ColorRemovalCommand}">
+                                            <s:CommandWrapperHelper.CommandParameter>
+                                                <MultiBinding
+                                                    Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                                    <Binding ElementName="ColorThreshold" Path="LowerValue" />
+                                                    <Binding ElementName="ColorThreshold" Path="UpperValue" />
+                                                </MultiBinding>
+                                            </s:CommandWrapperHelper.CommandParameter>
+                                        </ContentPresenter>
+                                    </DockPanel>
+                                </GroupBox>
+
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Canny">
+                                    <DockPanel>
+                                        <Slider DockPanel.Dock="Top"
+                                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                                Minimum="0" Maximum="100" Name="CannyThresholdMin" />
+                                        <Slider DockPanel.Dock="Top"
+                                                Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                                Minimum="0" Maximum="100" Name="CannyThresholdMax" />
+
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                          Content="{Binding CannyCommand}">
+                                            <s:CommandWrapperHelper.CommandParameter>
+                                                <MultiBinding
+                                                    Converter="{x:Static s:PropagatingMultiValueConverter.Instance}">
+                                                    <Binding ElementName="CannyThresholdMin" Path="Value" />
+                                                    <Binding ElementName="CannyThresholdMax" Path="Value" />
+                                                </MultiBinding>
+                                            </s:CommandWrapperHelper.CommandParameter>
+                                        </ContentPresenter>
+                                    </DockPanel>
+                                </GroupBox>
+
+                                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Find Contours">
+                                    <DockPanel>
+
+                                        <ContentPresenter DockPanel.Dock="Top" s:CommandWrapperHelper.Text="Execute"
+                                                          Content="{Binding FindContoursCommand}" />
+                                    </DockPanel>
+                                </GroupBox>
+                            </DockPanel>
+
+
+                        </ScrollViewer>
                     </Border>
 
                     <GroupBox Grid.Column="3" Margin="5" Header="Execution log" Width="200">
                         <DockPanel>
-                            <ListBox ItemsSource="{Binding ExecutionLog}" />
+                            <ListBox ItemsSource="{Binding ExecutionLog}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:LogRecord}">
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock Text="{Binding Text}"
+                                                       Visibility="{Binding Text, Converter={StaticResource NullToCollapsedConverter}}" />
+                                            <Image
+                                                Source="{Binding Image, Converter={StaticResource OpenCvImageToBitmapSourceConverterKey}}"
+                                                Margin="0,2"
+                                                Visibility="{Binding Text, Converter={StaticResource NullToCollapsedConverter}}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </DockPanel>
                     </GroupBox>
                 </Grid>

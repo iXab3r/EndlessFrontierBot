@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using OpenTK.Graphics.ES11;
 using OpenTK.Platform.Windows;
+using RaysVideoMixer.Services;
 using ReactiveUI;
 
 namespace RaysVideoMixer.ViewModels
@@ -30,6 +30,8 @@ namespace RaysVideoMixer.ViewModels
         {
             PlayCommand = CommandWrapper.Create<object[]>(
                 args => PlayCommandExecuted(Convert.ToDouble(args[0]), Convert.ToDouble(args[1])));
+            ShowStaticCommand = CommandWrapper.Create<object[]>(
+                args => ShowStaticCommandExecuted(Convert.ToDouble(args[0]), Convert.ToDouble(args[1])));
 
             StopCommand = CommandWrapper.Create(ReactiveCommand.Create(() => {  activeOperationAnchor?.Dispose(); }));
         }
@@ -67,6 +69,8 @@ namespace RaysVideoMixer.ViewModels
         
         public ICommand PlayCommand { get; }
         
+        public ICommand ShowStaticCommand { get; }
+        
         public ICommand StopCommand { get; }
 
         private async Task PlayCommandExecuted(double min, double max)
@@ -75,6 +79,10 @@ namespace RaysVideoMixer.ViewModels
             activeOperationAnchor = Disposable.Create(() => isCancelled = true);
             
             var staticImg = new Image<Bgr, byte>(@"C:\Work\EndlessFrontierBot\GreenScreenTestData\Dream-Green-Forest-Stock-Photo.jpg");
+            
+            var imgProcessor = new ChromaKeyImageProcessor();
+            imgProcessor.SetBackground(staticImg.Bitmap);
+            imgProcessor.SetChromaKey(min, max);
             
             using ( var capture = new Capture(@"C:\Users\mailx\Downloads\Cogs Turning 2.mov"))
             using ( var bgCapture = new Capture(@"C:\Users\mailx\Downloads\Cogs Turning 2.mov"))
@@ -105,7 +113,7 @@ namespace RaysVideoMixer.ViewModels
                         BackgroundImage = bgFrame.ToBitmapSource();
                     }
 
-                    var processedImg = await Task.Run(() => Process(frame, bgFrame, staticImg, min, max));
+                    var processedImg = await Task.Run(() => imgProcessor.Process(frame.Bitmap));
                     if (previewProcessedImage)
                     {
                         ProcessedImage = processedImg.ToBitmapSource();
@@ -117,6 +125,33 @@ namespace RaysVideoMixer.ViewModels
                         await Task.Delay(delay);
                     }
                 }
+            }
+        }
+        
+        
+        private async Task ShowStaticCommandExecuted(double min, double max)
+        {
+            var isCancelled = false;
+            activeOperationAnchor = Disposable.Create(() => isCancelled = true);
+            
+            var staticImg = new Image<Bgr, byte>(@"C:\Work\EndlessFrontierBot\GreenScreenTestData\Dream-Green-Forest-Stock-Photo.jpg");
+            
+            var imgProcessor = new ChromaKeyImageProcessor();
+            imgProcessor.SetBackground(staticImg.Bitmap);
+            imgProcessor.SetChromaKey(min, max);
+            
+            var frame = new Image<Bgr, byte>(@"C:\Work\EndlessFrontierBot\GreenScreenTestData\IMG_0001.JPG");
+            
+            if (previewLoadedImage)
+            {
+                LoadedImage = frame.ToBitmapSource();
+                BackgroundImage = staticImg.ToBitmapSource();
+            }
+
+            var processedImg = await Task.Run(() => imgProcessor.Process(frame.Bitmap));
+            if (previewProcessedImage)
+            {
+                ProcessedImage = processedImg.ToBitmapSource();
             }
         }
         
@@ -146,14 +181,5 @@ namespace RaysVideoMixer.ViewModels
             
             return result;
         }
-    }
-
-    public interface IChromaKeyImageProcessor
-    {
-        void SetBackground(Bitmap source);
-
-        void SetChromaKey(Hsv color, double minValue, double maxValue);
-        
-        Bitmap Process(Bitmap source);
     }
 }

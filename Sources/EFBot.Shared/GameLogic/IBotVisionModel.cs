@@ -8,18 +8,20 @@ namespace EFBot.Shared.GameLogic
 {
     public interface IBotVisionModel : IDisposableReactiveObject
     {
-        IImage BotImage { get; set; }
+        IImage BotImage { get; }
         
         ReadOnlyObservableCollection<RecognitionResult> BotVision { get; }
         
-        UnitShopUnit[] AvailableUnits { get; set; }
+        UnitShopUnit[] AvailableUnits { get; }
         
-        TimeSpan? TimeLeftTillRefresh { get; set; }
+        TimeSpan? TimeLeftTillRefresh { get; }
 
-        string Text { get; set; }
+        string Text { get; }
         
-        string Error { get; set; }
+        string Error { get; }
         
         double FramesPerSecond { get; }
+        
+        bool IsTrackingEnabled { get; set; }
     }
 }

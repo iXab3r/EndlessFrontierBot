@@ -5,13 +5,22 @@ using EFBot.Shared.Scaffolding;
 using EFBot.Shared.Services;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using ReactiveUI;
 
 namespace EFBot.Shared.GameLogic.ImageReaders {
     internal abstract class ImageReaderBase : DisposableReactiveObject
     {
+        private FrameContext context;
+        
         public string Error { get; protected set;}
         
         public string Text { get; protected set;}
+
+        public FrameContext Context
+        {
+            get { return context; }
+            set { this.RaiseAndSetIfChanged(ref context, value); }
+        }
 
         public ReadOnlyObservableCollection<RecognitionResult> Results
         {

@@ -119,10 +119,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\CannyImageOperation.cs" />
+    <Compile Include="Models\CanvasEffectImageOperation.cs" />
     <Compile Include="Models\ColorRemovalOperation.cs" />
+    <Compile Include="Models\DilateImageOperation.cs" />
+    <Compile Include="Models\ErodeImageOperation.cs" />
     <Compile Include="Models\FindContoursImageOperation.cs" />
     <Compile Include="Models\GaussianBlueImageOperation.cs" />
     <Compile Include="Models\ImageOperationBase.cs" />
+    <Compile Include="Models\LogRecord.cs" />
     <Compile Include="Models\NegateImageOperation.cs" />
     <Compile Include="Models\OperationResult.cs" />
     <Compile Include="Models\TemplateDetectionOperation.cs" />
@@ -167,6 +171,10 @@
     <ProjectReference Include="..\EFBot.Shared\EFBot.Shared.csproj">
       <Project>{96bcf24a-90b3-4218-a437-54f6605df66e}</Project>
       <Name>EFBot.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RaysVideoMixer\RaysVideoMixer.csproj">
+      <Project>{fd6280cc-7bc0-41d7-91a9-e1051c0cbb95}</Project>
+      <Name>RaysVideoMixer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

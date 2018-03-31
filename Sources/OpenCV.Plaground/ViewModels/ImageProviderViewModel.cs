@@ -104,7 +104,7 @@ namespace OpenCV.Plaground.ViewModels
         private bool IsImage(string filePath)
         {
             var extension = Path.GetExtension(filePath)?.ToLowerInvariant().Trim();
-            var knownImageFormats = new HashSet<string>(){ ".jpg", ".png", ".gif", ".bmp" };
+            var knownImageFormats = new HashSet<string>(){ ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
             return knownImageFormats.Contains(extension);
         }
         

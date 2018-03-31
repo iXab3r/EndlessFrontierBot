@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using DynamicData;
 using DynamicData.Binding;
+using EFBot.Launcher.Services;
 using EFBot.Shared.GameLogic;
 using EFBot.Shared.Prism;
 using EFBot.Shared.Scaffolding;
@@ -55,6 +57,15 @@ namespace EFBot.Launcher.ViewModels
                 .AddTo(Anchors);
 
             ActiveStrategy = botStrategyFactory.Create(gameSource, Controller);
+
+            SendClickCommand = CommandWrapper.Create(
+                ReactiveCommand.Create(
+                    () =>
+                    {
+                        var controller = new EFWindowController();
+                        controller.WindowHandle = gameSource.WindowHandle;
+                        controller.SendMouseClick(350, 460);
+                    }));
         }
 
         public BitmapSource ActiveImage => GameSource.Source?.ToBitmapSource();
@@ -86,6 +97,8 @@ namespace EFBot.Launcher.ViewModels
         public IBotVisionModel Controller { get; }
 
         public IBotStrategy ActiveStrategy { get; }
+        
+        public ICommand SendClickCommand { get; }
 
         public double SourcePeriodInMilliseconds
         {

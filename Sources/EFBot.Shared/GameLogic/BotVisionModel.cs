@@ -16,7 +16,6 @@ using Emgu.CV;
 using Emgu.CV.Structure;
 using MathNet.Numerics.Statistics;
 using ReactiveUI;
-using SlimDX.Direct3D9;
 
 namespace EFBot.Shared.GameLogic
 {
@@ -27,16 +26,16 @@ namespace EFBot.Shared.GameLogic
         private readonly ReadOnlyObservableCollection<RecognitionResult> readonlyBotVision;
         private readonly UnitAcquisitionConfirmationDialogReader unitAcquisitionDialogReader;
         private readonly UnitsListReader unitListReader;
-
         private readonly UnitRefreshTimeReader unitRefreshTimeReader;
+        
+        private readonly MovingStatistics fpsStats = new MovingStatistics(10);
+
         private UnitShopUnit[] availableUnits;
         private IImage botImage;
         private string error;
-
         private string text;
         private TimeSpan? timeLeftTillRefresh;
-        
-        private readonly MovingStatistics fpsStats = new MovingStatistics(10);
+        private bool isTrackingEnabled = true;
 
         public BotVisionModel(
             IGameImageSource gameSource,
@@ -68,6 +67,12 @@ namespace EFBot.Shared.GameLogic
         }
 
         public double FramesPerSecond => fpsStats.Mean;
+
+        public bool IsTrackingEnabled
+        {
+            get { return isTrackingEnabled; }
+            set { this.RaiseAndSetIfChanged(ref isTrackingEnabled, value); }
+        }
 
         public IImage BotImage
         {
@@ -120,17 +125,19 @@ namespace EFBot.Shared.GameLogic
 
             var readersToRefresh = new ImageReaderBase[]
             {
-                unitAcquisitionDialogReader, goldChestReader, unitListReader, unitRefreshTimeReader
+                unitAcquisitionDialogReader, goldChestReader, unitRefreshTimeReader, unitListReader
             };
 
-            if (activeImage == null)
+            if (activeImage == null || !IsTrackingEnabled)
             {
                 BotImage = null;
-                Text = "No image";
+                Text =  IsTrackingEnabled ? "No image" : "Tracking disabled";
                 Error = null;
                 readersToRefresh.ForEach(x => x.Clear());
                 return;
             }
+            
+            var context = new FrameContext();
 
             var debugText = new StringBuilder();
             var timingsText = new List<Tuple<string, TimeSpan>>();
@@ -140,13 +147,15 @@ namespace EFBot.Shared.GameLogic
             {
                 foreach (var imageReaderBase in readersToRefresh)
                 {
+                    imageReaderBase.Context = context;
+                    
                     var readerName = imageReaderBase.GetType().Name;
                     using (new OperationTimer(x => timingsText.Add(new Tuple<string, TimeSpan>($"{readerName}: {x.TotalMilliseconds}ms", x))))
                     {
                         imageReaderBase.Refresh(activeImage);
                         activeImage.ROI = Rectangle.Empty;
                     }
-
+                    context.AddOrUpdateReader(imageReaderBase);
                     debugText.Append($"{readerName}\n{imageReaderBase.Text}\n");
                 }
             }
